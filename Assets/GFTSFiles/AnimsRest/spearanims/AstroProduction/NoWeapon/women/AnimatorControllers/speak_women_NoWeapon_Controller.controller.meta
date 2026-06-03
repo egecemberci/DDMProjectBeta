@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d87f31ec73704be439f6606c3b2a1d50
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/NoWeapon/women/AnimatorControllers/speak_women_NoWeapon_Controller.controller
+  uploadId: 749944

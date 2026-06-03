@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 231829435d73b0b4faf41707fa585e18, type: 3}
+  m_Name: FireEnchant
+  m_EditorClassIdentifier: Assembly-CSharp::EnchantmentData
+  element: 0
+  enchantName: 
+  duration: 15
+  bonusDamage: 8
+  fireDotDamage: 3
+  fireDotDuration: 4
+  iceSlowMultiplier: 0.5
+  iceSlowDuration: 3
+  lightProjectileDamage: 12
+  lightProjectileSpeed: 20
+  lightProjectilePrefab: {fileID: 0}
+  voidDamageReduction: 0.3
+  voidDebuffDuration: 5
+  enchantParticlePrefab: {fileID: 0}
+  enchantColor: {r: 0, g: 0, b: 0, a: 0}

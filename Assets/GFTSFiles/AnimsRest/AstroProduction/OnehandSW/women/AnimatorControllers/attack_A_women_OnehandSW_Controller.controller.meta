@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9af4c9bb0ce348a40a12db13ca71d184
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/OnehandSW/women/AnimatorControllers/attack_A_women_OnehandSW_Controller.controller
+  uploadId: 658351

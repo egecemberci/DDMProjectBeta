@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fc31d2f5c8a407840a31c1297f29c85d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/NoWeapon/men/AnimatorControllers/idle_A_men_NoWeapon_Controller.controller
+  uploadId: 658351

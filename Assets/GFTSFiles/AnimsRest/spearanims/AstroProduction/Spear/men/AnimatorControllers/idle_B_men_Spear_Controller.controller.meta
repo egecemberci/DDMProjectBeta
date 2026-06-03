@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d4f313fc36d61624483578021e65d8bf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/men/AnimatorControllers/idle_B_men_Spear_Controller.controller
+  uploadId: 749944

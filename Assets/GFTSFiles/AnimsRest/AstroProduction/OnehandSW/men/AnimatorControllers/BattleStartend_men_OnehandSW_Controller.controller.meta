@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bd3b59d17bff2714195983e5dfe16ce8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/OnehandSW/men/AnimatorControllers/BattleStartend_men_OnehandSW_Controller.controller
+  uploadId: 658351

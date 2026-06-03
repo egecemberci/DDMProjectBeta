@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7ea77359ceedbf14491324e6ac49d0d8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/OnehandSW/women/AnimatorControllers/idle_B_women_OnehandSW_Controller.controller
+  uploadId: 658351

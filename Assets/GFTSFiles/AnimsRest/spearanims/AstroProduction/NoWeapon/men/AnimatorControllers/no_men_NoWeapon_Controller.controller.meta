@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8f40d998e9f0aa14e97f2adc055a97c8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/NoWeapon/men/AnimatorControllers/no_men_NoWeapon_Controller.controller
+  uploadId: 749944

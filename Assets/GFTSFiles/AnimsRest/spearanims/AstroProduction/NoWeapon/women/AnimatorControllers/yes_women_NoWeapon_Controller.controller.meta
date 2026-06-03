@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4ca78bb13d12d8240ba7d3614b776beb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/NoWeapon/women/AnimatorControllers/yes_women_NoWeapon_Controller.controller
+  uploadId: 749944

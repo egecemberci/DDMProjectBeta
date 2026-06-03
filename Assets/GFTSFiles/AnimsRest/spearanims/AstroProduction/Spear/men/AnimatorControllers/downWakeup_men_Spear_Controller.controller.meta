@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 082816eb2ffc9ea41ab9eea8af956e33
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/men/AnimatorControllers/downWakeup_men_Spear_Controller.controller
+  uploadId: 749944

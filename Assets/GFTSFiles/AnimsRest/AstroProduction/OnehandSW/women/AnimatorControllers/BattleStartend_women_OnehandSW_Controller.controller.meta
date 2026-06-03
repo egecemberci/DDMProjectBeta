@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 14421f7d88272a2439f969eb553c7e9c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/OnehandSW/women/AnimatorControllers/BattleStartend_women_OnehandSW_Controller.controller
+  uploadId: 658351

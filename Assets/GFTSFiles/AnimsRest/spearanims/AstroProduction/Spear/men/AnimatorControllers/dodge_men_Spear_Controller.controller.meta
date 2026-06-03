@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 91adcefff349c9d4fa2be44272903098
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/men/AnimatorControllers/dodge_men_Spear_Controller.controller
+  uploadId: 749944

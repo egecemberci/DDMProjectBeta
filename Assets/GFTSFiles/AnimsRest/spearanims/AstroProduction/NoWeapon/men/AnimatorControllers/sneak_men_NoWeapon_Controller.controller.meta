@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e46f11a5af780184db8ee1a675f2942f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/NoWeapon/men/AnimatorControllers/sneak_men_NoWeapon_Controller.controller
+  uploadId: 749944

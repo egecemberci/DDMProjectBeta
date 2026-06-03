@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1ed47c8371c06794e8e10dbacdf0fe87
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/women/AnimatorControllers/item_women_Spear_Controller.controller
+  uploadId: 749944

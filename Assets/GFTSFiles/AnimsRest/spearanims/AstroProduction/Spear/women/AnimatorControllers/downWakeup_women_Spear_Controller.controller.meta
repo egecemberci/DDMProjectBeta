@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a8b7d8c30505ddf4ea4eb227603b1f09
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/women/AnimatorControllers/downWakeup_women_Spear_Controller.controller
+  uploadId: 749944

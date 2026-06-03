@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8a7512c5c4300a64882143e56ef7ab06
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/men/AnimatorControllers/damage_men_Spear_Controller.controller
+  uploadId: 749944

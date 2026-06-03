@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0375a76bb4ab1f0408ff4bb05e72b39a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/men/AnimatorControllers/item_men_Spear_Controller.controller
+  uploadId: 749944

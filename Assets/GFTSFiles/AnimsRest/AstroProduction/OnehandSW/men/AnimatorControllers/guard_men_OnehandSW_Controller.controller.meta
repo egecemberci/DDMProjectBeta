@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c8620495af1b464499c2e25448a1f0dd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/OnehandSW/men/AnimatorControllers/guard_men_OnehandSW_Controller.controller
+  uploadId: 658351

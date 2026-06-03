@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 181c93ff6efaf2540b46a3cf8128d86e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/NoWeapon/women/AnimatorControllers/idle_A_women_NoWeapon_Controller.controller
+  uploadId: 658351

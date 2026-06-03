@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f0c88fc50cd475c4880739e9782da8c4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/OnehandSW/women/AnimatorControllers/walk_women_OnehandSW_Controller.controller
+  uploadId: 658351

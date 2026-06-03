@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 432bf56e1dce3c6489cc7302cb47ef47
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/NoWeapon/women/AnimatorControllers/idle_A_women_NoWeapon_Controller.controller
+  uploadId: 749944

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0245cba35d17ae443a2dd961074ed4d6, type: 3}
+  m_Name: Rapier
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  weaponName: Rapier
+  damage: 15
+  staminaCost: 10
+  lightAttackCount: 3
+  heavyDamage: 35
+  heavyStaminaCost: 25
+  poise: 8
+  lightAttacks:
+  - {fileID: -2500864207490788474, guid: db33bd956f9e23442a2ae0990c6e1b15, type: 3}
+  - {fileID: -6226936239419161991, guid: 7fcbeba1e38759e418fcaea0b3ce2629, type: 3}
+  heavyAttack: {fileID: 8137676843585087437, guid: c9f8945604291c6449c15079d097e4b4, type: 3}

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 07228e2edc8c2ff44b0e4ea8a459f517
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/women/AnimatorControllers/dodge_women_Spear_Controller.controller
+  uploadId: 749944

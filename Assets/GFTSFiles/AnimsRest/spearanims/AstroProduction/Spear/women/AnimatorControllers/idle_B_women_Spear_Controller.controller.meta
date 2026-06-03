@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b42d2e90769af0d4eac08e82bc1616e7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317624
+  packageName: Spear Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/Spear/women/AnimatorControllers/idle_B_women_Spear_Controller.controller
+  uploadId: 749944

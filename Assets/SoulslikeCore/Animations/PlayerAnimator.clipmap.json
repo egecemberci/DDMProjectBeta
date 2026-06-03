@@ -1,0 +1,23 @@
+{
+  "entries": [
+    { "layer": "Base Layer", "state": "Idle", "clip": "1001_women_OnehandSW_idle_B" },
+    { "layer": "Base Layer", "state": "1011_women_OnehandSW_walk 0", "clip": "1011_women_OnehandSW_walk" },
+    { "layer": "Base Layer", "state": "1021_women_OnehandSW_run", "clip": "1021_women_OnehandSW_run" },
+    { "layer": "Base Layer", "state": "1031_women_OnehandSW_jump_DownLoop", "clip": "1031_women_OnehandSW_jump_DownLoop" },
+    { "layer": "Base Layer", "state": "1031_women_OnehandSW_jump_Start", "clip": "1031_women_OnehandSW_jump_Start" },
+    { "layer": "Base Layer", "state": "1031_women_OnehandSW_jump04_End", "clip": "1031_women_OnehandSW_jump04_End" },
+    { "layer": "Base Layer", "state": "1031_women_OnehandSW_jump_UpLoop", "clip": "1031_women_OnehandSW_jump_UpLoop" },
+    { "layer": "Base Layer", "state": "1041_women_OnehandSW_damage", "clip": "1041_women_OnehandSW_damage" },
+    { "layer": "Base Layer", "state": "1051_women_OnehandSW_down", "clip": "1051_women_OnehandSW_down" },
+    { "layer": "Base Layer", "state": "1061_women_OnehandSW_dodge_front", "clip": "1061_women_OnehandSW_dodge_front" },
+    { "layer": "Base Layer", "state": "1071_women_OnehandSW_guard_Loop", "clip": "1071_women_OnehandSW_guard_Loop" },
+    { "layer": "Base Layer", "state": "1071_women_OnehandSW_guard_End", "clip": "1071_women_OnehandSW_guard_End" },
+    { "layer": "Base Layer", "state": "1071_women_OnehandSW_guard_Start", "clip": "1071_women_OnehandSW_guard_Start" },
+    { "layer": "Base Layer", "state": "2001_women_OnehandSW_attack_A", "clip": "2001_women_OnehandSW_attack_A" },
+    { "layer": "Base Layer", "state": "2011_women_OnehandSW_attack_B", "clip": "2011_women_OnehandSW_attack_B" },
+    { "layer": "Base Layer", "state": "1031_women_OnehandSW_jump_UpDown", "clip": "1031_women_OnehandSW_jump_UpDown" },
+    { "layer": "Base Layer", "state": "1062_women_OnehandSW_dodge_back", "clip": "1062_women_OnehandSW_dodge_back" },
+    { "layer": "Base Layer", "state": "1063_women_OnehandSW_dodge_left", "clip": "1063_women_OnehandSW_dodge_left" },
+    { "layer": "Base Layer", "state": "1064_women_OnehandSW_dodge_right", "clip": "1064_women_OnehandSW_dodge_right" }
+  ]
+}

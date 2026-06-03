@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0cbc51845e5c8ce4584e282d11af1afc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 279906
+  packageName: HandSword ac
+  packageVersion: 1.0.0
+  assetPath: Assets/AstroProduction/NoWeapon/men/AnimatorControllers/sneak_men_NoWeapon_Controller.controller
+  uploadId: 658351
