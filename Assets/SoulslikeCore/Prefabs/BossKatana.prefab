@@ -2221,15 +2221,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8514835569649202259}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.61, y: 1.586546, z: -1.97}
-  m_LocalScale: {x: 0.5663856, y: 0.5663856, z: 0.5663856}
+  m_LocalRotation: {x: -0, y: -0.46869978, z: -0, w: 0.8833576}
+  m_LocalPosition: {x: 64.397194, y: 6.96, z: -61.76}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 509294032389694487}
   - {fileID: 2771445631021298235}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -55.9, z: 0}
 --- !u!95 &8199467734825013680
 Animator:
   serializedVersion: 7
@@ -2284,16 +2284,16 @@ NavMeshAgent:
   m_GameObject: {fileID: 8514835569649202259}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.3
+  m_Radius: 1.06
   m_Speed: 4.5
-  m_Acceleration: 20
+  m_Acceleration: 30
   avoidancePriority: 50
   m_AngularSpeed: 0
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 1.7
+  m_Height: 6
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
@@ -2315,31 +2315,36 @@ MonoBehaviour:
   poise: 65
   maxStamina: 40
   staminaRegen: 4
-  moveSpeed: 2.5
+  moveSpeed: 10
   rotationSpeed: 10
-  meleeRange: 2.25
-  farRange: 2.75
+  meleeRange: 7.94
+  farRange: 9.71
+  aggroRange: 42.37
   blockMeterMax: 150
   poiseToHpSplit: 0.15
   poiseBreakWindow: 5
-  forwardNudge: 1
-  dodgeDist: 0.35
+  forwardNudge: 3.53
+  dodgeDist: 1.24
   dodgeTime: 0.385
   dodgeAnimSpeed: 0.65
-  thinkDodgeDist: 1.5
-  closeRange: 1
-  closeDodgeCooldown: 1
+  thinkDodgeDist: 5.3
+  damageDodgeDist: 3.53
+  damageDodgeCooldown: 3
+  parryableDelay: 0.1
+  parryableWindow: 0.167
   blockHpThreshold: 0.35
-  lowHpThinkDodgeDist: 0.25
+  lowHpThinkDodgeDist: 0.88
   lowHpPoiseMult: 2
   deflectPoiseFraction: 0.1
   deflectStaminaDamage: 86
   guardState: Guard
   dodgeBackState: DodgeBack
+  staggerState: Hit
   battleStartState: BattleStart
+  battleEndState: BattleEnd
   deathState: Down
-  introWalkSpeed: 1.5
-  hitRadius: 0.3
+  introWalkSpeed: 5.3
+  hitRadius: 1.06
   hitCooldown: 0.3
   drawGizmos: 1
   attackATrigger: AttackA
@@ -2347,8 +2352,8 @@ MonoBehaviour:
   attackAChance: 0.8
   attackADamage: 25
   attackBDamage: 35
-  attackAReach: 2.5
-  attackBReach: 2.5
+  attackAReach: 8.83
+  attackBReach: 8.83
   attackARecover: 1
   attackBRecover: 1.75
   thinkDodgeCooldown: 10
