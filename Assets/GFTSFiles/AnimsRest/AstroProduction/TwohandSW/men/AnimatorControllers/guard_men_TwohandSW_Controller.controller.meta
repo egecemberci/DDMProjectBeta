@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e1ceec21ab5262245a40b645e2b88287
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317622
+  packageName: TwoHandSword Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/TwohandSW/men/AnimatorControllers/guard_men_TwohandSW_Controller.controller
+  uploadId: 749940

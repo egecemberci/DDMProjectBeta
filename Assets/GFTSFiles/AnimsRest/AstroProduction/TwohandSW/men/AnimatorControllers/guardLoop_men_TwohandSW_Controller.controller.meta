@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4648ee422f6538d4d94ef41a41826c7c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317622
+  packageName: TwoHandSword Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/TwohandSW/men/AnimatorControllers/guardLoop_men_TwohandSW_Controller.controller
+  uploadId: 749940

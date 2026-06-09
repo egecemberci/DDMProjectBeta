@@ -169,4 +169,6 @@ public class LockOnSystem : MonoBehaviour
         LockedTarget  = null;
         _mouseAccumulator = 0f;
     }
+
+    public void ForceUnlock() => ClearLockOn();   // e.g. when the locked target dies
 }

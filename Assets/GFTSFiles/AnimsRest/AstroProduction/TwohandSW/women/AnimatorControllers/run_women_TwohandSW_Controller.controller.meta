@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e82f170877755464e88061f7b072cbca
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317622
+  packageName: TwoHandSword Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/TwohandSW/women/AnimatorControllers/run_women_TwohandSW_Controller.controller
+  uploadId: 749940

@@ -16,8 +16,8 @@ MonoBehaviour:
   damage: 15
   staminaCost: 10
   lightAttackCount: 3
-  heavyDamage: 35
-  heavyStaminaCost: 25
+  heavyDamage: 30
+  heavyStaminaCost: 32.5
   poise: 8
   lightAttacks:
   - {fileID: -2500864207490788474, guid: db33bd956f9e23442a2ae0990c6e1b15, type: 3}

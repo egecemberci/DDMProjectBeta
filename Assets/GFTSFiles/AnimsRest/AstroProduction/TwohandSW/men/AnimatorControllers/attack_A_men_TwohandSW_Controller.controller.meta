@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d23132129d4e4c24cbb39aeee8fbe3fe
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317622
+  packageName: TwoHandSword Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/TwohandSW/men/AnimatorControllers/attack_A_men_TwohandSW_Controller.controller
+  uploadId: 749940

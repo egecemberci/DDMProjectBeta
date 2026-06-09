@@ -5,7 +5,7 @@ public enum PlayerState
     Idle, Moving, Sprinting,
     LightAttacking, HeavyAttacking,
     Dodging, Blocking,
-    EnchantActivating,
+    UsingItem,
     Stunned, Dead
 }
 
@@ -23,7 +23,8 @@ public class PlayerStateMachine : MonoBehaviour
     {
         return CurrentState != PlayerState.Dead &&
                CurrentState != PlayerState.Stunned &&
-               CurrentState != PlayerState.EnchantActivating;
+               CurrentState != PlayerState.UsingItem &&   // drinking a potion — locked in place
+               CurrentState != PlayerState.Blocking;   // block is uninterruptible — nothing else acts while blocking
     }
 
     public bool IsAttacking()

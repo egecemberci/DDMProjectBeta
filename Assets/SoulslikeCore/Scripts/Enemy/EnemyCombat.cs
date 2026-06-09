@@ -74,26 +74,7 @@ public class EnemyCombat : MonoBehaviour
     void DealDamage()
     {
         if (_playerDamageable == null) return;
-
-        // Oyuncu block yapıyor mu kontrol et
-        PlayerBlock block = _player.GetComponent<PlayerBlock>();
-
-        if (block != null && block.IsBlocking)
-        {
-            // Block yönü doğru mu? Düşman önden mi saldırıyor?
-            Vector3 dirToEnemy = (transform.position - _player.position).normalized;
-            float   dot        = Vector3.Dot(_player.forward, dirToEnemy);
-
-            if (dot > 0.3f) // oyuncu düşmana bakıyorsa block geçerli
-            {
-                float reducedDamage = block.ProcessDamage(attackDamage);
-                if (reducedDamage > 0)
-                    _playerDamageable.TakeDamage(reducedDamage, 0, transform.position);
-                return;
-            }
-        }
-
-        // Normal hasar
+        // block/parry is now resolved inside PlayerStats.TakeDamage
         _playerDamageable.TakeDamage(attackDamage, attackPoise, transform.position);
     }
 }

@@ -1,203 +1,260 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+
 public class PlayerCombat : MonoBehaviour
 {
     [Header("Silah Modeli")]
-    public Transform weaponBone;      // RightHand kemiği
-    public GameObject weaponPrefab;   // silah prefabı
-    private GameObject _weaponInstance;
+    public Transform weaponBone;
+    public GameObject weaponPrefab;
     public Vector3 weaponScale = Vector3.one;
     public Vector3 weaponRotation = Vector3.zero;
-    void Start()
-{
-    if (weaponPrefab != null && weaponBone != null)
-    {
-        _weaponInstance = Instantiate(weaponPrefab, weaponBone);
-        _weaponInstance.transform.localPosition = Vector3.zero;
-        _weaponInstance.transform.localRotation = Quaternion.identity;
-        _weaponInstance.transform.localScale = weaponScale;
-        _weaponInstance.transform.localRotation = Quaternion.Euler(weaponRotation);
-    }
-}
+
     [Header("Silah")]
     public WeaponData currentWeapon;
-    public Collider   hitbox;
-    public Transform  weaponTransform;
+    public Collider hitbox;
+    public Transform weaponTransform;
 
-    private PlayerStateMachine _sm;
-    private PlayerStats        _stats;
-    private PlayerInputHandler _input;
-    private EnchantBar         _enchantBar;
-    private EnchantmentSystem  _enchantSystem;
-    private Animator           _anim;
+    // ── Each attack plays its FULL clip, then holds the last frame ──
+    [Header("Light Combo — per-attack play time (≈ clip length)")]
+    public float lightAttackDuration  = 0.98f;   // light clip
+    public float strongAttackDuration = 1.10f;   // strong clip @1.35x
+    [Range(0f, 1f)] public float hitFraction = 0.4f;          // when in the swing the hit lands
+    [Range(0f, 1f)] public float finisherDamageBlend = 0.5f;  // 0=light,1=strong (0.5=median)
 
+    [Header("End-of-attack hold (pause on last frame)")]
+    public int   comboHoldFrames = 30;           // 30 frames ...
+    public float comboHoldFps    = 30f;          // ... @30fps = 1.0s continue window
 
-    [Header("Saldırı Zamanlaması")]
-    public float lightAttackDuration = 0.7f;   // hafif saldırı kilidi (anim bitene kadar)
-    public float heavyAttackDuration = 1.0f;    // ağır saldırı kilidi
-    public float attackCooldown      = 0.25f;   // saldırı sonrası kısa bekleme
+    [Header("Heavy / Spear (single attack)")]
+    public float heavyDuration = 0.9f;
 
-    private int   _comboStep;
-    private float _comboTimer;
-    private float _attackCooldownTimer;
-    private const float ComboWindow = 1.0f;
+    [Header("Hitbox — Light (sphere)")]
+    public float lightRange  = 1.5f;
+    public float lightRadius = 1.0f;
+    [Header("Hitbox — Finisher (sphere)")]
+    public float finisherRange  = 2.0f;
+    public float finisherRadius = 1.1f;
+    [Header("Hitbox — Heavy/Spear (box)")]
+    public float   heavyRange       = 1.75f;   // nerfed 50% (was 3.5)
+    public Vector3 heavyHalfExtents = new Vector3(0.35f, 0.6f, 0.35f);
+    public float   heavyHeight      = 1.0f;
 
-    private HashSet<Collider> _hitEnemies = new();
+    [Header("Debug")]
+    public bool drawHitboxGizmos = true;
+
+    PlayerStateMachine _sm;
+    PlayerStats        _stats;
+    PlayerInputHandler _input;
+    PlayerBlock        _block;
+    Animator           _anim;
+    CharacterController _cc;
+    GameObject         _weaponInstance;
+
+    [Header("Heavy attack nudge")]
+    public float heavyNudgeDist = 0.2f;   // forward scoot when the strong attack plays
+    public float heavyNudgeTime = 0.18f;
+
+    bool _comboActive;
+    bool _continueQueued;   // light pressed during a combo -> chain at the hold
 
     void Awake()
     {
         _sm            = GetComponent<PlayerStateMachine>();
         _stats         = GetComponent<PlayerStats>();
         _input         = GetComponent<PlayerInputHandler>();
-        _enchantBar    = GetComponent<EnchantBar>();
-        _enchantSystem = GetComponent<EnchantmentSystem>();
+        _block         = GetComponent<PlayerBlock>();
         _anim          = GetComponentInChildren<Animator>();
-
+        _cc            = GetComponent<CharacterController>();
         if (hitbox != null) hitbox.enabled = false;
-        if (_enchantSystem != null && weaponTransform != null)
-            _enchantSystem.SetWeaponTransform(weaponTransform);
+    }
+
+    void Start()
+    {
+        if (weaponPrefab != null && weaponBone != null)
+        {
+            _weaponInstance = Instantiate(weaponPrefab, weaponBone);
+            _weaponInstance.transform.localPosition = Vector3.zero;
+            _weaponInstance.transform.localScale    = weaponScale;
+            _weaponInstance.transform.localRotation = Quaternion.Euler(weaponRotation);
+        }
     }
 
     void Update()
     {
-        if (_comboTimer > 0f) _comboTimer -= Time.deltaTime;
-        else _comboStep = 0;
+        bool light = _input.LightAttackPressed;
+        bool heavy = _input.HeavyAttackPressed;
 
-        if (_attackCooldownTimer > 0f) _attackCooldownTimer -= Time.deltaTime;
+        if (_block != null && _block.IsBlocking) return;   // no attacking while blocking
+
+        if (_comboActive)
+        {
+            if (light) _continueQueued = true;             // buffer the chain
+            return;
+        }
 
         if (!_sm.CanAct()) return;
-
-        bool lightAttack = _input.LightAttackPressed;
-        bool heavyAttack = _input.HeavyAttackPressed;
-
-        if (lightAttack) TryLightAttack();
-        else if (heavyAttack) TryHeavyAttack();
+        if      (light) StartCoroutine(LightCombo());
+        else if (heavy) StartCoroutine(HeavySpear());
     }
 
-void TryLightAttack()
-{
-    if (_sm.IsAttacking()) return;
-    if (_attackCooldownTimer > 0f) return;
-    if (currentWeapon == null) return;
-    if (!_stats.UseStamina(currentWeapon.staminaCost)) return;
+    // light → (hold) → light → (hold) → strong
+    IEnumerator LightCombo()
+    {
+        if (currentWeapon == null) yield break;
+        if (!_stats.UseStamina(currentWeapon.staminaCost)) yield break;
+        _comboActive = true; _continueQueued = false;
 
-    _sm.ChangeState(PlayerState.LightAttacking);
-    _comboStep  = (_comboStep + 1) % currentWeapon.lightAttackCount;
-    _comboTimer = ComboWindow;
-    _hitEnemies.Clear();
+        yield return Swing("LightAttack", PlayerState.LightAttacking, lightAttackDuration,
+                           lightRange, lightRadius, currentWeapon.damage, currentWeapon.poise, false);
+        yield return Hold();
+        if (!_continueQueued || !_stats.UseStamina(currentWeapon.staminaCost)) { EndCombo(); yield break; }
 
-    if (_anim != null) _anim.SetTrigger("LightAttack");
+        _continueQueued = false;
+        yield return Swing("LightAttack", PlayerState.LightAttacking, lightAttackDuration,
+                           lightRange, lightRadius, currentWeapon.damage, currentWeapon.poise, false);
+        yield return Hold();
+        if (!_continueQueued || !_stats.UseStamina(currentWeapon.heavyStaminaCost)) { EndCombo(); yield break; }
 
-    StartCoroutine(AttackSequence(lightAttackDuration));
-    DealLightDamage();
-}
+        _continueQueued = false;
+        float dmg = Mathf.Lerp(currentWeapon.damage, currentWeapon.heavyDamage, finisherDamageBlend);
+        yield return Swing("Finisher", PlayerState.HeavyAttacking, strongAttackDuration,
+                           finisherRange, finisherRadius, dmg, currentWeapon.poise * 1.5f, true);
+        EndCombo();   // strong has no hold — combo ends
+    }
 
-void TryHeavyAttack()
-{
-    if (_sm.IsAttacking()) return;
-    if (_attackCooldownTimer > 0f) return;
-    if (currentWeapon == null) return;
-    if (!_stats.UseStamina(currentWeapon.heavyStaminaCost)) return;
+    IEnumerator HeavySpear()
+    {
+        if (currentWeapon == null) yield break;
+        if (!_stats.UseStamina(currentWeapon.heavyStaminaCost)) yield break;
+        _comboActive = true; _continueQueued = false;
+        StartCoroutine(NudgeForward(heavyNudgeDist, heavyNudgeTime));
+        yield return Swing("HeavyAttack", PlayerState.HeavyAttacking, heavyDuration,
+                           0f, 0f, currentWeapon.heavyDamage, currentWeapon.poise * 2.5f, true, box: true);   // +25% poise drain
+        EndCombo();
+    }
 
-    _sm.ChangeState(PlayerState.HeavyAttacking);
-    _comboStep  = 0;
-    _comboTimer = 0f;
-    _hitEnemies.Clear();
+    IEnumerator NudgeForward(float dist, float time)   // small forward scoot during the strong attack
+    {
+        if (_cc == null || dist <= 0f) yield break;
+        Vector3 dir = transform.forward; dir.y = 0f; dir.Normalize();
+        float t = 0f;
+        while (t < time)
+        {
+            if (_sm.CurrentState != PlayerState.HeavyAttacking) yield break;   // cancelled
+            if (_cc.enabled) _cc.Move(dir * (dist / time) * Time.deltaTime);
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
 
-    if (_anim != null) _anim.SetTrigger("HeavyAttack");
+    // plays one attack's full clip, deals its hit partway through
+    IEnumerator Swing(string trig, PlayerState st, float dur, float range, float radius,
+                      float dmg, float poise, bool heavy, bool box = false)
+    {
+        _sm.ChangeState(st);
+        if (_anim != null) { _anim.speed = 1f; _anim.SetTrigger(trig); }
+        float t = 0f; bool dealt = false;
+        while (t < dur)
+        {
+            if (_sm.CurrentState == PlayerState.Dodging || _sm.CurrentState == PlayerState.Blocking) yield break; // cancelled
+            if (!dealt && t >= dur * hitFraction)
+            {
+                if (box) DealBox(heavyRange, heavyHalfExtents, heavyHeight, dmg, poise);
+                else     DealSphere(range, radius, dmg, poise, heavy);
+                dealt = true;
+            }
+            t += Time.deltaTime;
+            yield return null;
+        }
+    }
 
-    StartCoroutine(AttackSequence(heavyAttackDuration));
-    DealHeavyDamage();
-}
+    // freeze the last frame for the continue window
+    IEnumerator Hold()
+    {
+        if (_sm.CurrentState == PlayerState.Dodging || _sm.CurrentState == PlayerState.Blocking)
+        { if (_anim != null) _anim.speed = 1f; yield break; }
 
-IEnumerator AttackSequence(float duration)
-{
-    yield return new WaitForSeconds(duration);
-    _attackCooldownTimer = attackCooldown;
-    _sm.ChangeState(PlayerState.Idle);
-}
+        _sm.ChangeState(PlayerState.Idle);                 // accept the continue input
+        if (_anim != null) _anim.speed = 0f;               // pause on the last frame
+        float hold = comboHoldFrames / Mathf.Max(1f, comboHoldFps);
+        float t = 0f;
+        while (t < hold)
+        {
+            if (_continueQueued) break;                    // chain now
+            if (_sm.CurrentState == PlayerState.Dodging || _sm.CurrentState == PlayerState.Blocking
+                || (_block != null && _block.IsBlocking)) { _continueQueued = false; break; }
+            bool moving = _input.MoveInput.sqrMagnitude > 0.1f;
+            if (_anim != null) _anim.speed = moving ? 1f : 0f;   // resume locomotion if moving
+            t += Time.deltaTime;
+            yield return null;
+        }
+        if (_anim != null) _anim.speed = 1f;
+    }
 
-    void DealLightDamage()
+    void EndCombo()
+    {
+        _comboActive = false; _continueQueued = false;
+        if (_anim != null) _anim.speed = 1f;
+        if (_sm.IsAttacking()) _sm.ChangeState(PlayerState.Idle);
+    }
+
+    void DealSphere(float range, float radius, float dmg, float poise, bool heavy)
     {
         float s = transform.lossyScale.x;
-        Collider[] hits = Physics.OverlapSphere(
-            transform.position + transform.forward * 1.5f * s, 1f * s);
-
-        bool hitAnything = false;
-
-        foreach (var hit in hits)
+        var hits = Physics.OverlapSphere(transform.position + transform.forward * range * s, radius * s);
+        foreach (var h in hits)
         {
-            if (!hit.CompareTag("Enemy")) continue;
-            if (hit.TryGetComponent<IDamageable>(out var target))
-            {
-                target.TakeDamage(currentWeapon.damage, currentWeapon.poise, transform.position);
-                _enchantSystem?.ApplyEnchantEffect(target, hit.transform.position, hit.transform);
-                hitAnything = true;
-            }
+            if (!h.CompareTag("Enemy")) continue;
+            if (h.TryGetComponent<IDamageable>(out var t))
+                t.TakeDamage(dmg, poise, transform.position);
         }
-
-        if (hitAnything) _enchantBar?.AddProgress(isHeavy: false);
-
-
     }
 
-    void DealHeavyDamage()
+    void DealBox(float range, Vector3 half, float heightOff, float dmg, float poise)
     {
-        Debug.Log("HeavyAttack tetiklendi");
-
         float s = transform.lossyScale.x;
-        Vector3 origin = transform.position + Vector3.up * s;
-
-        RaycastHit[] hits = Physics.BoxCastAll(
-            origin,
-            new Vector3(0.3f, 0.5f, 0.3f) * s,
-            transform.forward,
-            transform.rotation,
-            2.5f * s);
-
-        bool hitAnything = false;
-
-        foreach (var hit in hits)
+        Vector3 origin = transform.position + Vector3.up * heightOff * s;
+        var hits = Physics.BoxCastAll(origin, half * s, transform.forward, transform.rotation, range * s);
+        foreach (var h in hits)
         {
-            if (!hit.collider.CompareTag("Enemy")) continue;
-            if (hit.collider.TryGetComponent<IDamageable>(out var target))
-            {
-                target.TakeDamage(currentWeapon.heavyDamage, currentWeapon.poise * 2f, transform.position);
-                _enchantSystem?.ApplyEnchantEffect(target, hit.point, hit.collider.transform);
-                hitAnything = true;
-            }
+            if (!h.collider.CompareTag("Enemy")) continue;
+            if (h.collider.TryGetComponent<IDamageable>(out var t))
+                t.TakeDamage(dmg, poise, transform.position);
         }
-
-        if (hitAnything) _enchantBar?.AddProgress(isHeavy: true);
-
     }
 
-    // Animator Event
-    public void EnableHitbox()  { if (hitbox != null) hitbox.enabled = true;  }
-    public void DisableHitbox() { if (hitbox != null) hitbox.enabled = false; }
-    public void OnAttackEnd()   => _sm.ChangeState(PlayerState.Idle);
+    // Animator-event stubs (so clip events don't error) + death lockout
+    public void EnableHitbox()  { }
+    public void DisableHitbox() { }
+    public void OnAttackEnd()   { if (_sm != null) _sm.ChangeState(PlayerState.Idle); }
 
-    // Ölümde çağrılır — saldırıyı tamamen durdur (hitbox + bileşen)
     public void DisableCombat()
     {
         StopAllCoroutines();
+        _comboActive = false; _continueQueued = false;
+        if (_anim != null) _anim.speed = 1f;
         if (hitbox != null) hitbox.enabled = false;
         enabled = false;
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnDrawGizmos()
     {
-        if (hitbox == null || !hitbox.enabled) return;
-        if (_hitEnemies.Contains(other)) return;
-        if (!other.CompareTag("Enemy")) return;
+        if (!drawHitboxGizmos) return;
+        float s = transform.lossyScale.x;
 
-        _hitEnemies.Add(other);
+        Gizmos.color = new Color(1f, 0.9f, 0.1f, 0.7f);
+        Gizmos.DrawWireSphere(transform.position + transform.forward * lightRange * s, lightRadius * s);
 
-        if (other.TryGetComponent<IDamageable>(out var target))
-        {
-            target.TakeDamage(currentWeapon.damage, currentWeapon.poise, transform.position);
-            _enchantSystem?.ApplyEnchantEffect(target, other.transform.position, other.transform);
-        }
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.8f);
+        Gizmos.DrawWireSphere(transform.position + transform.forward * finisherRange * s, finisherRadius * s);
+
+        Gizmos.color = new Color(1f, 0.15f, 0.15f, 0.9f);
+        Vector3 origin = transform.position + Vector3.up * heavyHeight * s;
+        Vector3 end    = origin + transform.forward * heavyRange * s;
+        Gizmos.DrawLine(origin, end);
+        Matrix4x4 prev = Gizmos.matrix;
+        Gizmos.matrix = Matrix4x4.TRS(end, transform.rotation, Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, heavyHalfExtents * 2f * s);
+        Gizmos.matrix = prev;
     }
 }

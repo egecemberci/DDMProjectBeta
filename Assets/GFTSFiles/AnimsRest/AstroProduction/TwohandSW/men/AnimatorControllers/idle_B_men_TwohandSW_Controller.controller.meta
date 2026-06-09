@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 429b72fb95406594a8d181243f5cd714
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 317622
+  packageName: TwoHandSword Action
+  packageVersion: 1.0
+  assetPath: Assets/AstroProduction/TwohandSW/men/AnimatorControllers/idle_B_men_TwohandSW_Controller.controller
+  uploadId: 749940

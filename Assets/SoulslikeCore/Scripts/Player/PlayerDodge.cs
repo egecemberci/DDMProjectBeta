@@ -30,6 +30,8 @@ public class PlayerDodge : MonoBehaviour
 
     void Update()
     {
+        var blk = GetComponent<PlayerBlock>();
+        if (blk != null && (blk.IsBlockStunned || blk.IsStanceBroken)) return;   // locked during knockback / stance break
         if (!_sm.CanAct()) return;
         if (_input.DodgePressed) TryDodge();
     }

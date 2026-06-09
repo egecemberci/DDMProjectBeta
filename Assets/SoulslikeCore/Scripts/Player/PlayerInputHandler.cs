@@ -14,7 +14,6 @@ public class PlayerInputHandler : MonoBehaviour
     private bool _useItemPressed;
     private bool _jumpPressed;
     private bool _lockOnPressed;
-    private bool _spellPressed;
 
     public bool LightAttackPressed
     {
@@ -51,11 +50,6 @@ public class PlayerInputHandler : MonoBehaviour
         get { bool v = _lockOnPressed; _lockOnPressed = false; return v; }
     }
 
-    public bool SpellPressed
-    {
-        get { bool v = _spellPressed; _spellPressed = false; return v; }
-    }
-
     public void OnMove(InputValue v)        => MoveInput      = v.Get<Vector2>();
     public void OnLook(InputValue v)        => LookInput      = v.Get<Vector2>();
     public void OnBlock(InputValue v)       => BlockHeld      = v.isPressed;
@@ -67,5 +61,4 @@ public class PlayerInputHandler : MonoBehaviour
     public void OnUseItem(InputValue v)     { if (v.isPressed) _useItemPressed     = true; }
     public void OnJump(InputValue v)        { if (v.isPressed) _jumpPressed        = true; }
     public void OnLockOn(InputValue v)      { if (v.isPressed) _lockOnPressed      = true; }
-    public void OnSpell(InputValue v)       { if (v.isPressed) _spellPressed       = true; }
 }
