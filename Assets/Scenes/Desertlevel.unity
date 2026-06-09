@@ -226,6 +226,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!4 &60980305 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -3910990755373119420, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
+  m_PrefabInstance: {fileID: 1580086269}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &68274580 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
@@ -581,10 +586,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   cameraTarget: {fileID: 1766419310}
+  distance: 2
+  shoulder: 0.5
+  heightOffset: 0.25
   horizontalSpeed: 1
   verticalSpeed: 0.8
-  minVertical: -20
-  maxVertical: 60
+  minPitch: -80
+  maxPitch: 80
+  defaultPitch: 8
+  lockFollowSpeed: 8
+  lockPitch: 10
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  collisionRadius: 0.2
+  collisionSkin: 0.15
+  minDistance: 0.4
 --- !u!1 &340818058 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6642728116378443889, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
@@ -965,70 +982,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 8398069774662741489, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
---- !u!1 &683180574
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 683180576}
-  - component: {fileID: 683180575}
-  m_Layer: 0
-  m_Name: NavMesh Surface
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &683180575
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 683180574}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
-  m_SerializedVersion: 0
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 00935d1902bafe9488f6798a2382bfbf, type: 2}
-  m_BuildHeightMesh: 0
---- !u!4 &683180576
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 683180574}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 101.11855, y: 1.44745, z: -13.10099}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &769758159 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7a8f13add5eac31468a2a039477b2b39, type: 3}
@@ -2262,15 +2215,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -3910990755373119420, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.1
+      value: 0.77
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.1
+      value: 0.77
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.1
+      value: 0.77
       objectReference: {fileID: 0}
     - target: {fileID: -3910990755373119420, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2380,6 +2333,9 @@ PrefabInstance:
     - {fileID: 5397580400817257075, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
     - {fileID: -7892111260194667011, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -3910990755373119420, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 68274580}
     - targetCorrespondingSourceObject: {fileID: 8229132816259266152, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
       insertIndex: 3
       addedObject: {fileID: 801587698}
@@ -2667,31 +2623,31 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 60980305}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
       propertyPath: m_LocalScale.x
-      value: 6
+      value: 5.4545465
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
       propertyPath: m_LocalScale.y
-      value: 6
+      value: 5.4545455
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
       propertyPath: m_LocalScale.z
-      value: 6
+      value: 5.454545
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -143.98
+      value: -130.89091
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.58
+      value: -2.3454545
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -186.38
+      value: -169.43637
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 62f61a3b23bbe58478291ec8a8cf6021, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2860,7 +2816,7 @@ Transform:
   m_GameObject: {fileID: 1766419309}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.5415729, z: 0}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3295,11 +3251,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96a7e53d3928a52409969482f0abce9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnchantmentSystem
-  fireEnchant: {fileID: 11400000, guid: 638c3d9738559174fbe6adc693696285, type: 2}
-  iceEnchant: {fileID: 11400000, guid: f2c8c6601bb9b834cb87185eeb20fc4e, type: 2}
-  lightEnchant: {fileID: 11400000, guid: 23656a63045807848852be37da1f65a6, type: 2}
-  voidEnchant: {fileID: 11400000, guid: d01e9f3a32c276c4385996297088705b, type: 2}
-  activeEnchantment: {fileID: 0}
 --- !u!114 &2065392288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3312,9 +3263,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a64a1ce633a88f04485fff7a1415511c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnchantBar
-  maxBar: 100
-  lightAttackGain: 10
-  heavyAttackGain: 20
 --- !u!114 &2065392289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3345,9 +3293,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56582339542482428a3fc7a31e4ae8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBlock
-  blockStaminaCost: 5
-  damageReduction: 0.7
+  blockMinStamina: 10
+  blockStaminaPerHit: 2
+  guardStartState: 1071_women_OnehandSW_guard_Start
   parryWindow: 0.3
+  parryPoiseDamage: 15
+  parryFindRadius: 1.5
+  knockback: 0.15
+  knockbackTime: 0.12
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  stanceBreakKnockback: 1.25
+  stanceBreakTime: 2
+  stanceBreakHurtSpeed: 0.75
+  stanceBreakRegenTo: 0.75
 --- !u!114 &2065392291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3385,8 +3345,22 @@ MonoBehaviour:
   hitbox: {fileID: 0}
   weaponTransform: {fileID: 0}
   lightAttackDuration: 0.7
-  heavyAttackDuration: 1
-  attackCooldown: 0.25
+  strongAttackDuration: 1.1
+  hitFraction: 0.4
+  finisherDamageBlend: 0.5
+  comboHoldFrames: 30
+  comboHoldFps: 30
+  heavyDuration: 0.9
+  lightRange: 1.5
+  lightRadius: 1
+  finisherRange: 2
+  finisherRadius: 1.1
+  heavyRange: 1.75
+  heavyHalfExtents: {x: 0.35, y: 0.6, z: 0.35}
+  heavyHeight: 1
+  drawHitboxGizmos: 1
+  heavyNudgeDist: 0.2
+  heavyNudgeTime: 0.18
 --- !u!114 &2065392293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3431,6 +3405,10 @@ MonoBehaviour:
   maxHP: 100
   maxStamina: 100
   poise: 50
+  staminaRegenRate: 30
+  blockRegenMultiplier: 0.1
+  standStillRegenMult: 3
+  standStillDelay: 0.3
   _currentHP: 0
   _currentStamina: 0
   hitInvulnerability: 0.4
@@ -3511,8 +3489,8 @@ Transform:
   m_GameObject: {fileID: 2065392286}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 199.2, y: -0.49, z: -245.8}
-  m_LocalScale: {x: 4, y: 4, z: 4}
+  m_LocalPosition: {x: 131.7, y: 0.55, z: -178.7}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 769758159}
@@ -3650,5 +3628,3 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 2065392299}
   - {fileID: 1580086269}
-  - {fileID: 1702515383}
-  - {fileID: 683180576}
