@@ -586,9 +586,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   cameraTarget: {fileID: 1766419310}
-  distance: 2
-  shoulder: 0.5
-  heightOffset: 0.25
+  distance: 7
+  shoulder: 1.5
+  heightOffset: 0.5
   horizontalSpeed: 1
   verticalSpeed: 0.8
   minPitch: -80
@@ -3438,7 +3438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   walkSpeed: 12
-  sprintSpeed: 24
+  sprintSpeed: 20
   rotationSpeed: 3.5
   jumpHeight: 6
   gravity: -20

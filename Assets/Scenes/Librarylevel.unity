@@ -733,9 +733,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   cameraTarget: {fileID: 1766419310}
-  distance: 2
-  shoulder: 0.5
-  heightOffset: 0.25
+  distance: 7
+  shoulder: 1.5
+  heightOffset: 0.5
   horizontalSpeed: 1
   verticalSpeed: 0.8
   minPitch: -80
@@ -1097,6 +1097,99 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2231746481717527902, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+--- !u!1001 &606156347
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2186079962960948175, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: maxHP
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 2186079962960948175, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: farRange
+      value: 10.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2186079962960948175, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: fleeRange
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2186079962960948175, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: moveSpeed
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 2186079962960948175, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: meleeRange
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2186079962960948175, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: sprintSpeed
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.3239338
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -46.335274
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784887401685697542, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8017578633273837500, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
+      propertyPath: m_Name
+      value: Mimic
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 58f7e85c2b0ec8748b679c978079a283, type: 3}
 --- !u!1 &617511388 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6014503084441653313, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
@@ -3017,7 +3110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   walkSpeed: 12
-  sprintSpeed: 24
+  sprintSpeed: 20
   rotationSpeed: 3.5
   jumpHeight: 20
   gravity: -20
@@ -3218,3 +3311,4 @@ SceneRoots:
   - {fileID: 2065392299}
   - {fileID: 1719205613}
   - {fileID: 1315309629}
+  - {fileID: 606156347}
