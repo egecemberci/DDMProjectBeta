@@ -3424,7 +3424,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -43.23, y: 10.98, z: -33.4}
-  m_LocalScale: {x: 6, y: 6, z: 6}
+  m_LocalScale: {x: 12, y: 12, z: 12}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -3620,7 +3620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   walkSpeed: 12
   sprintSpeed: 20
-  rotationSpeed: 4
+  rotationSpeed: 3.5
   jumpHeight: 6
   gravity: -20
 --- !u!114 &2065392294
