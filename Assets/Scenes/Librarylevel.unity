@@ -733,10 +733,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   cameraTarget: {fileID: 1766419310}
+  distance: 2
+  shoulder: 0.5
+  heightOffset: 0.25
   horizontalSpeed: 1
   verticalSpeed: 0.8
-  minVertical: -20
-  maxVertical: 60
+  minPitch: -80
+  maxPitch: 80
+  defaultPitch: 8
+  lockFollowSpeed: 8
+  lockPitch: 10
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  collisionRadius: 0.2
+  collisionSkin: 0.15
+  minDistance: 0.4
 --- !u!1 &370974969 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3251983479778721731, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
@@ -1841,6 +1853,70 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -6500292202156370832, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+--- !u!1 &1315309627
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1315309629}
+  - component: {fileID: 1315309628}
+  m_Layer: 0
+  m_Name: NavMesh Surface
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1315309628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315309627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 23800000, guid: a044a2886bfe3c748bafdbfdb4be44e3, type: 2}
+  m_BuildHeightMesh: 0
+--- !u!4 &1315309629
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315309627}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -23.106, y: 28.48977, z: -30.3173}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1353132091 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1545689032685804405, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
@@ -2003,70 +2079,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2014591756006862390, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
---- !u!1 &1552312619
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1552312621}
-  - component: {fileID: 1552312620}
-  m_Layer: 0
-  m_Name: NavMesh Surface
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1552312620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1552312619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
-  m_SerializedVersion: 0
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_GenerateLinks: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 13a87d36847ac0d40bdbae39d716c6e5, type: 2}
-  m_BuildHeightMesh: 0
---- !u!4 &1552312621
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1552312619}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.77971, y: 0.00001, z: 83.51871}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1557633552 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -6910744921024465860, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
@@ -2212,15 +2224,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2261,6 +2273,38 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7493596028755563170, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -7493596028755563170, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -7493596028755563170, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7493596028755563170, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: -4292154010595695564, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 5000
+      objectReference: {fileID: 0}
+    - target: {fileID: -4292154010595695564, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 10300
+      objectReference: {fileID: 0}
+    - target: {fileID: -4292154010595695564, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: -4292154010595695564, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
       propertyPath: m_Name
@@ -2850,11 +2894,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96a7e53d3928a52409969482f0abce9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnchantmentSystem
-  fireEnchant: {fileID: 11400000, guid: 638c3d9738559174fbe6adc693696285, type: 2}
-  iceEnchant: {fileID: 11400000, guid: f2c8c6601bb9b834cb87185eeb20fc4e, type: 2}
-  lightEnchant: {fileID: 11400000, guid: 23656a63045807848852be37da1f65a6, type: 2}
-  voidEnchant: {fileID: 11400000, guid: d01e9f3a32c276c4385996297088705b, type: 2}
-  activeEnchantment: {fileID: 0}
 --- !u!114 &2065392288
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2867,9 +2906,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a64a1ce633a88f04485fff7a1415511c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnchantBar
-  maxBar: 100
-  lightAttackGain: 10
-  heavyAttackGain: 20
 --- !u!114 &2065392289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2900,9 +2936,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e56582339542482428a3fc7a31e4ae8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBlock
-  blockStaminaCost: 5
-  damageReduction: 0.7
+  blockMinStamina: 10
+  blockStaminaPerHit: 2
+  guardStartState: 1071_women_OnehandSW_guard_Start
   parryWindow: 0.3
+  parryPoiseDamage: 15
+  parryFindRadius: 1.5
+  knockback: 0.15
+  knockbackTime: 0.12
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  stanceBreakKnockback: 1.25
+  stanceBreakTime: 2
+  stanceBreakHurtSpeed: 0.75
+  stanceBreakRegenTo: 0.75
 --- !u!114 &2065392291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2940,8 +2988,22 @@ MonoBehaviour:
   hitbox: {fileID: 0}
   weaponTransform: {fileID: 0}
   lightAttackDuration: 0.7
-  heavyAttackDuration: 1
-  attackCooldown: 0.25
+  strongAttackDuration: 1.1
+  hitFraction: 0.4
+  finisherDamageBlend: 0.5
+  comboHoldFrames: 30
+  comboHoldFps: 30
+  heavyDuration: 0.9
+  lightRange: 1.5
+  lightRadius: 1
+  finisherRange: 2
+  finisherRadius: 1.1
+  heavyRange: 1.75
+  heavyHalfExtents: {x: 0.35, y: 0.6, z: 0.35}
+  heavyHeight: 1
+  drawHitboxGizmos: 1
+  heavyNudgeDist: 0.2
+  heavyNudgeTime: 0.18
 --- !u!114 &2065392293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2954,9 +3016,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eff6d697e5d94241928f49e155e5601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  walkSpeed: 40
-  sprintSpeed: 60
-  rotationSpeed: 4
+  walkSpeed: 12
+  sprintSpeed: 24
+  rotationSpeed: 3.5
   jumpHeight: 20
   gravity: -20
 --- !u!114 &2065392294
@@ -2986,6 +3048,10 @@ MonoBehaviour:
   maxHP: 100
   maxStamina: 100
   poise: 50
+  staminaRegenRate: 30
+  blockRegenMultiplier: 0.1
+  standStillRegenMult: 3
+  standStillDelay: 0.3
   _currentHP: 0
   _currentStamina: 0
   hitInvulnerability: 0.4
@@ -3066,8 +3132,8 @@ Transform:
   m_GameObject: {fileID: 2065392286}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -0.5, y: 2.7, z: 148.5}
-  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_LocalPosition: {x: -0.5, y: 0.28, z: 59.37}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 769758159}
@@ -3151,4 +3217,4 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 2065392299}
   - {fileID: 1719205613}
-  - {fileID: 1552312621}
+  - {fileID: 1315309629}
