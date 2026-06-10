@@ -158,8 +158,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eff6d697e5d94241928f49e155e5601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  walkSpeed: 13
-  sprintSpeed: 20
+  walkSpeed: 8
+  sprintSpeed: 22
   rotationSpeed: 2.5
   jumpHeight: 5
   gravity: -20
@@ -442,12 +442,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   cameraTarget: {fileID: 756897995044216432}
   distance: 7
-  shoulder: 1.5
-  heightOffset: 0.5
+  shoulder: 1.7
+  heightOffset: -0.5
   horizontalSpeed: 1
   verticalSpeed: 0.8
-  minPitch: -60
-  maxPitch: 80
+  minPitch: -40
+  maxPitch: 70
   defaultPitch: 8
   lockFollowSpeed: 8
   lockPitch: 10
