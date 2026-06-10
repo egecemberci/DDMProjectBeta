@@ -1681,6 +1681,40 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 1886820233608824184, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
+--- !u!114 &865389370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 865389366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f450cd0cf849cc84dbf84d962e8d7076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneTransition
+  sceneName: LibraryLevel
+--- !u!65 &865389371
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 865389366}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.7, y: 0.7, z: 20}
+  m_Center: {x: 0.00000011917418, y: -0.04464593, z: 0.00000005078374}
 --- !u!1 &879915492 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 295828125921006983, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
@@ -3261,6 +3295,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -6261166233893714068, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 865389368}
+    - targetCorrespondingSourceObject: {fileID: -6261166233893714068, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 865389371}
+    - targetCorrespondingSourceObject: {fileID: -6261166233893714068, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 865389370}
     - targetCorrespondingSourceObject: {fileID: 3543757798724941133, guid: bb4648adddd5743479c180c8cbda82d6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1534304635}

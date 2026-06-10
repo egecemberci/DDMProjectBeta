@@ -6,7 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/Canyonlevel.unity
+    guid: 1e150a8f8df881948b27e6b76ab0bb4f
+  - enabled: 1
+    path: Assets/Scenes/Desertlevel.unity
+    guid: 0f466e25c734e274d8f2453b45fe2c65
+  - enabled: 1
+    path: Assets/Scenes/Librarylevel.unity
+    guid: afe3bdea45e24a44292455fac83fcfc2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
