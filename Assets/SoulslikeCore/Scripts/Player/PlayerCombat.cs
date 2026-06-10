@@ -28,16 +28,23 @@ public class PlayerCombat : MonoBehaviour
     [Header("Heavy / Spear (single attack)")]
     public float heavyDuration = 0.9f;
 
-    [Header("Hitbox — Light (sphere)")]
-    public float lightRange  = 1.5f;
-    public float lightRadius = 1.0f;
-    [Header("Hitbox — Finisher (sphere)")]
+    // All hurtboxes are CAPSULES (a tube along forward): Range = forward distance to the centre, Radius = width,
+    // Length = tube length (0 = a plain sphere), Height = vertical offset off the root. All values are × player scale.
+    [Header("Hitbox — Light (capsule)")]
+    public float lightRange   = 1.5f;   // distance
+    public float lightRadius  = 1.0f;   // width
+    public float lightLength  = 0f;     // tube length
+    public float lightHeight  = 0f;     // vertical offset
+    [Header("Hitbox — Finisher (capsule)")]
     public float finisherRange  = 2.0f;
     public float finisherRadius = 1.1f;
-    [Header("Hitbox — Heavy/Spear (box)")]
-    public float   heavyRange       = 1.75f;   // nerfed 50% (was 3.5)
-    public Vector3 heavyHalfExtents = new Vector3(0.35f, 0.6f, 0.35f);
-    public float   heavyHeight      = 1.0f;
+    public float finisherLength = 0f;
+    public float finisherHeight = 0f;
+    [Header("Hitbox — Heavy/Spear (capsule)")]
+    public float heavyRange  = 1.75f;
+    public float heavyRadius = 0.6f;
+    public float heavyLength = 0f;
+    public float heavyHeight = 1.0f;
 
     [Header("Debug")]
     public bool drawHitboxGizmos = true;
@@ -105,20 +112,20 @@ public class PlayerCombat : MonoBehaviour
         _comboActive = true; _continueQueued = false;
 
         yield return Swing("LightAttack", PlayerState.LightAttacking, lightAttackDuration,
-                           lightRange, lightRadius, currentWeapon.damage, currentWeapon.poise, false);
+                           lightRange, lightRadius, lightLength, lightHeight, currentWeapon.damage, currentWeapon.poise);
         yield return Hold();
         if (!_continueQueued || !_stats.UseStamina(currentWeapon.staminaCost)) { EndCombo(); yield break; }
 
         _continueQueued = false;
         yield return Swing("LightAttack", PlayerState.LightAttacking, lightAttackDuration,
-                           lightRange, lightRadius, currentWeapon.damage, currentWeapon.poise, false);
+                           lightRange, lightRadius, lightLength, lightHeight, currentWeapon.damage, currentWeapon.poise);
         yield return Hold();
         if (!_continueQueued || !_stats.UseStamina(currentWeapon.heavyStaminaCost)) { EndCombo(); yield break; }
 
         _continueQueued = false;
         float dmg = Mathf.Lerp(currentWeapon.damage, currentWeapon.heavyDamage, finisherDamageBlend);
         yield return Swing("Finisher", PlayerState.HeavyAttacking, strongAttackDuration,
-                           finisherRange, finisherRadius, dmg, currentWeapon.poise * 1.5f, true);
+                           finisherRange, finisherRadius, finisherLength, finisherHeight, dmg, currentWeapon.poise * 1.5f);
         EndCombo();   // strong has no hold — combo ends
     }
 
@@ -127,9 +134,10 @@ public class PlayerCombat : MonoBehaviour
         if (currentWeapon == null) yield break;
         if (!_stats.UseStamina(currentWeapon.heavyStaminaCost)) yield break;
         _comboActive = true; _continueQueued = false;
+        _sm.ChangeState(PlayerState.HeavyAttacking);   // set state BEFORE the nudge, or its own guard bails it on frame 1
         StartCoroutine(NudgeForward(heavyNudgeDist, heavyNudgeTime));
         yield return Swing("HeavyAttack", PlayerState.HeavyAttacking, heavyDuration,
-                           0f, 0f, currentWeapon.heavyDamage, currentWeapon.poise * 2.5f, true, box: true);   // +25% poise drain
+                           heavyRange, heavyRadius, heavyLength, heavyHeight, currentWeapon.heavyDamage, currentWeapon.poise * 2.5f);   // capsule
         EndCombo();
     }
 
@@ -147,9 +155,9 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    // plays one attack's full clip, deals its hit partway through
-    IEnumerator Swing(string trig, PlayerState st, float dur, float range, float radius,
-                      float dmg, float poise, bool heavy, bool box = false)
+    // plays one attack's full clip, deals its capsule hit partway through
+    IEnumerator Swing(string trig, PlayerState st, float dur, float range, float radius, float length, float height,
+                      float dmg, float poise)
     {
         _sm.ChangeState(st);
         if (_anim != null) { _anim.speed = 1f; _anim.SetTrigger(trig); }
@@ -159,8 +167,7 @@ public class PlayerCombat : MonoBehaviour
             if (_sm.CurrentState == PlayerState.Dodging || _sm.CurrentState == PlayerState.Blocking) yield break; // cancelled
             if (!dealt && t >= dur * hitFraction)
             {
-                if (box) DealBox(heavyRange, heavyHalfExtents, heavyHeight, dmg, poise);
-                else     DealSphere(range, radius, dmg, poise, heavy);
+                DealCapsule(range, radius, length, height, dmg, poise);
                 dealt = true;
             }
             t += Time.deltaTime;
@@ -168,14 +175,14 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    // freeze the last frame for the continue window
+    // keep the continue window open WITHOUT freezing — the swing settles back to idle/locomotion on its own
     IEnumerator Hold()
     {
         if (_sm.CurrentState == PlayerState.Dodging || _sm.CurrentState == PlayerState.Blocking)
         { if (_anim != null) _anim.speed = 1f; yield break; }
 
         _sm.ChangeState(PlayerState.Idle);                 // accept the continue input
-        if (_anim != null) _anim.speed = 0f;               // pause on the last frame
+        if (_anim != null) _anim.speed = 1f;               // let the swing resolve instead of holding a frozen frame
         float hold = comboHoldFrames / Mathf.Max(1f, comboHoldFps);
         float t = 0f;
         while (t < hold)
@@ -183,8 +190,6 @@ public class PlayerCombat : MonoBehaviour
             if (_continueQueued) break;                    // chain now
             if (_sm.CurrentState == PlayerState.Dodging || _sm.CurrentState == PlayerState.Blocking
                 || (_block != null && _block.IsBlocking)) { _continueQueued = false; break; }
-            bool moving = _input.MoveInput.sqrMagnitude > 0.1f;
-            if (_anim != null) _anim.speed = moving ? 1f : 0f;   // resume locomotion if moving
             t += Time.deltaTime;
             yield return null;
         }
@@ -198,27 +203,17 @@ public class PlayerCombat : MonoBehaviour
         if (_sm.IsAttacking()) _sm.ChangeState(PlayerState.Idle);
     }
 
-    void DealSphere(float range, float radius, float dmg, float poise, bool heavy)
+    // capsule hurtbox: a `length`-long tube of `radius`, centred `range` m in front along forward (all × player scale).
+    // length 0 collapses to a sphere — identical to the old light/finisher behaviour.
+    void DealCapsule(float range, float radius, float length, float height, float dmg, float poise)
     {
         float s = transform.lossyScale.x;
-        var hits = Physics.OverlapSphere(transform.position + transform.forward * range * s, radius * s);
-        foreach (var h in hits)
+        Vector3 center = transform.position + transform.forward * range * s + Vector3.up * height * s;
+        Vector3 half   = transform.forward * (length * 0.5f * s);
+        foreach (var h in Physics.OverlapCapsule(center - half, center + half, radius * s))
         {
             if (!h.CompareTag("Enemy")) continue;
             if (h.TryGetComponent<IDamageable>(out var t))
-                t.TakeDamage(dmg, poise, transform.position);
-        }
-    }
-
-    void DealBox(float range, Vector3 half, float heightOff, float dmg, float poise)
-    {
-        float s = transform.lossyScale.x;
-        Vector3 origin = transform.position + Vector3.up * heightOff * s;
-        var hits = Physics.BoxCastAll(origin, half * s, transform.forward, transform.rotation, range * s);
-        foreach (var h in hits)
-        {
-            if (!h.collider.CompareTag("Enemy")) continue;
-            if (h.collider.TryGetComponent<IDamageable>(out var t))
                 t.TakeDamage(dmg, poise, transform.position);
         }
     }
@@ -237,24 +232,28 @@ public class PlayerCombat : MonoBehaviour
         enabled = false;
     }
 
+    void DrawHitCapsule(float range, float radius, float length, float height, Color c)
+    {
+        float s = transform.lossyScale.x;
+        Gizmos.color = c;
+        Vector3 center = transform.position + transform.forward * range * s + Vector3.up * height * s;
+        Vector3 half   = transform.forward * (length * 0.5f * s);
+        Vector3 p0 = center - half, p1 = center + half;
+        Gizmos.DrawWireSphere(p0, radius * s);
+        if (length > 0.001f)
+        {
+            Gizmos.DrawWireSphere(p1, radius * s);
+            Vector3 r = transform.right * radius * s, u = transform.up * radius * s;
+            Gizmos.DrawLine(p0 + r, p1 + r); Gizmos.DrawLine(p0 - r, p1 - r);
+            Gizmos.DrawLine(p0 + u, p1 + u); Gizmos.DrawLine(p0 - u, p1 - u);
+        }
+    }
+
     void OnDrawGizmos()
     {
         if (!drawHitboxGizmos) return;
-        float s = transform.lossyScale.x;
-
-        Gizmos.color = new Color(1f, 0.9f, 0.1f, 0.7f);
-        Gizmos.DrawWireSphere(transform.position + transform.forward * lightRange * s, lightRadius * s);
-
-        Gizmos.color = new Color(1f, 0.5f, 0f, 0.8f);
-        Gizmos.DrawWireSphere(transform.position + transform.forward * finisherRange * s, finisherRadius * s);
-
-        Gizmos.color = new Color(1f, 0.15f, 0.15f, 0.9f);
-        Vector3 origin = transform.position + Vector3.up * heavyHeight * s;
-        Vector3 end    = origin + transform.forward * heavyRange * s;
-        Gizmos.DrawLine(origin, end);
-        Matrix4x4 prev = Gizmos.matrix;
-        Gizmos.matrix = Matrix4x4.TRS(end, transform.rotation, Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, heavyHalfExtents * 2f * s);
-        Gizmos.matrix = prev;
+        DrawHitCapsule(lightRange,    lightRadius,    lightLength,    lightHeight,    new Color(1f, 0.9f, 0.1f, 0.7f));
+        DrawHitCapsule(finisherRange, finisherRadius, finisherLength, finisherHeight, new Color(1f, 0.5f, 0f, 0.8f));
+        DrawHitCapsule(heavyRange,    heavyRadius,    heavyLength,    heavyHeight,    new Color(1f, 0.15f, 0.15f, 0.9f));
     }
 }

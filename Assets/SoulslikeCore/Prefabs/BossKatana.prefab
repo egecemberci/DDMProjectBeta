@@ -251,13 +251,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1049018905672011332}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.6107103, y: 0.78521526, z: -0.06394445, w: 0.079881705}
-  m_LocalPosition: {x: 1.976, y: -0.368, z: 0.767}
-  m_LocalScale: {x: 1.23, y: 2.5280643, z: 1.55}
+  m_LocalRotation: {x: -0.6323991, y: 0.7676844, z: -0.005496379, w: 0.10344977}
+  m_LocalPosition: {x: 1.337, y: -0.201, z: 0.531}
+  m_LocalScale: {x: 1.23, y: 1.6159446, z: 1.55}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5993731999224327096}
-  m_LocalEulerAnglesHint: {x: -180.163, y: 348.255, z: -255.76599}
+  m_LocalEulerAnglesHint: {x: -172.969, y: 350.384, z: -258.37}
 --- !u!33 &607546522831082224
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2223,7 +2223,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.46869978, z: -0, w: 0.8833576}
   m_LocalPosition: {x: 64.397194, y: 6.96, z: -61.76}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 509294032389694487}
@@ -2285,8 +2285,8 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 1.06
-  m_Speed: 4.5
-  m_Acceleration: 30
+  m_Speed: 30
+  m_Acceleration: 25
   avoidancePriority: 50
   m_AngularSpeed: 0
   m_StoppingDistance: 0
@@ -2311,29 +2311,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::KatanaBoss
   player: {fileID: 0}
   anim: {fileID: 0}
-  maxHP: 420
-  poise: 65
-  maxStamina: 40
+  maxHP: 400
+  poise: 70
+  maxStamina: 35
   staminaRegen: 4
-  moveSpeed: 10
-  rotationSpeed: 10
-  meleeRange: 7.94
-  farRange: 9.71
-  aggroRange: 42.37
+  moveSpeed: 21
+  rotationSpeed: 6
+  meleeRange: 12
+  farRange: 13
+  aggroRange: 30
   blockMeterMax: 150
   poiseToHpSplit: 0.15
   poiseBreakWindow: 5
   forwardNudge: 3.53
-  dodgeDist: 1.24
+  dodgeDist: 2
   dodgeTime: 0.385
   dodgeAnimSpeed: 0.65
-  thinkDodgeDist: 5.3
-  damageDodgeDist: 3.53
-  damageDodgeCooldown: 3
-  parryableDelay: 0.1
+  thinkDodgeDist: 5
+  damageDodgeDist: 4
+  damageDodgeCooldown: 4
+  parryableDelay: 0.06
   parryableWindow: 0.167
   blockHpThreshold: 0.35
-  lowHpThinkDodgeDist: 0.88
+  lowHpThinkDodgeDist: 1
   lowHpPoiseMult: 2
   deflectPoiseFraction: 0.1
   deflectStaminaDamage: 86
@@ -2343,17 +2343,17 @@ MonoBehaviour:
   battleStartState: BattleStart
   battleEndState: BattleEnd
   deathState: Down
-  introWalkSpeed: 5.3
-  hitRadius: 1.06
-  hitCooldown: 0.3
+  introWalkSpeed: 9
+  hitRadius: 1
+  hitCooldown: 0.2
   drawGizmos: 1
   attackATrigger: AttackA
   attackBTrigger: AttackB
-  attackAChance: 0.8
+  attackAChance: 0.6
   attackADamage: 25
   attackBDamage: 35
-  attackAReach: 8.83
-  attackBReach: 8.83
+  attackAReach: 11
+  attackBReach: 12
   attackARecover: 1
   attackBRecover: 1.75
   thinkDodgeCooldown: 10

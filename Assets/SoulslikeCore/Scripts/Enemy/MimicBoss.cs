@@ -24,6 +24,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     [Header("Movement")]
     public float moveSpeed   = 4.5f;
     public float sprintSpeed = 7.5f;
+    public float sprintAcceleration = 40f;   // NavMesh accel while sprinting (Attack C lunge-in) — higher = snappier launch
     public float rotationSpeed = 14f;
 
     [Header("Ranges (metres)")]
@@ -40,9 +41,11 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     public float recoverB = 0.65625f;   // was 0.375
     public float recoverC = 0.5f;       // widened (was 0.328) for parity / breathing room
     public float recoverD = 0.875f;     // was 0.5
-    public float recoverHopTime      = 0.5f;    // window-exit hop length
-    public float recoverHopBack      = 0.3f;    // backward nudge during the hop
-    public float recoverHopAnimSpeed = 0.35f;   // jump anim slowed to this
+    public float recoverHopTime      = 0.5f;    // how long the breather OVERLAPS the window tail (early start, fine)
+    public float recoverHopBack      = 0.3f;    // backward drift during the breather
+    public float recoverHopAnimSpeed = 0.35f;   // jump-snippet slowed to this (subtle "breather")
+    public float recoverHopBlend     = 0.5f;    // VERY smooth crossfade into the breather snippet
+    public float recoverHopTail      = 0.1f;    // max spill PAST the window into the decision state (keep <=0.1)
     public string recoverJumpState   = "1031_women_OnehandSW_jump_Start";
     public float postHopNoDodge      = 0.25f;   // brief lockout so a dodge can't stack onto the hop anim
 
@@ -57,7 +60,10 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     public float tiredStaminaDodgeSkew = -0.20f; // low stamina -> commit to the guard rather than dodge
 
     [Header("Aggression / dodge")]
-    public float forwardNudge    = 0.5f;  // each combo swing advances this far
+    public float forwardNudge    = 0.5f;  // each combo swing advances this far (Attack B & D)
+    public float attackCNudge    = 3f;    // Attack C's thrust lunge — its own knob, independent of forwardNudge
+    public float attackCParryKnockback = 3f;     // if Attack C is PARRIED: kill the lunge + recoil this far back...
+    public float attackCParryKnockTime = 0.18f;  // ...over this long (snappy, emphasizes the parry)
     public float dodgeDist       = 1.5f;
     public float dodgeTime       = 0.385f;  // slower nudge (~65% of old speed)
     public float dodgeAnimSpeed  = 0.65f;   // dodge anim plays at 65%
@@ -96,8 +102,8 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     const float   ATTACK_B_BASE  = 1.35f;         // controller speed of that state (divided out so 1.8 = true 1.8x)
 
     [Header("Special — desperation lunge (once)")]
-    public float specialHpPctMin = 0.10f;
-    public float specialHpPctMax = 0.25f;
+    public float specialHpPctMin = 0.35f;
+    public float specialHpPctMax = 0.35f;
     public float leapTime    = 1.5f;    // first ~30 frames stretched to this (the "leap")
     public float leapSpeed   = 0.33f;   // playback speed during the leap
     public float lungeTime   = 1.0f;    // remaining ~60 frames at native speed (the "lunge")
@@ -106,42 +112,66 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     [Range(0f,1f)] public float lungeStrikeFraction = 0.55f;
     public float lungeNudge = 3f;        // forward lunge distance during the lunge phase
     public float lungeNudgeSpeed = 4f;   // how fast that lunge covers the distance (x base)
+    public float specialSweepWidth  = 3f;   // lunge STRIKE hitbox width (m) — wide so it can't be sidestepped
+    public float specialSweepLength = 4f;   // lunge STRIKE hitbox length (forward reach, m)
 
     [Header("Low-HP defensive (after the lunge, < special threshold)")]
     public float lowHpGuardMult   = 1.8f;                 // longer guards when desperate
     [Range(0f,1f)] public float lowHpGuardChance = 0.5f;  // chance to keep guarding instead of attacking
 
-    [Header("Attack anim locks (seconds)")]
-    public float lightLock    = 0.55f;
-    public float finisherLock = 0.70f;
-    public float spearLock    = 1.00f;
+    [Header("Block frequency / forced attacks")]
+    [Range(0f,1f)] public float defensiveHpThreshold = 0.25f;  // at/below this HP fraction it turtles (blocks a lot)
+    [Range(0f,1f)] public float normalBlockChance    = 0.25f;  // chance to guard before an attack ABOVE the threshold (rare)
+    [Range(0f,1f)] public float defensiveBlockChance = 0.7f;   // ...and BELOW it (the turtle state — frequent)
+    public float attackForceInterval = 3f;                      // can't perma-turtle: forces an attack after this long without one
+
+    [Header("Heal — once-ever desperation potion (drops to <=5% HP, not staggered)")]
+    public GameObject potionModel;                        // iksir drawn into the left hand during the drink (assigned in scene)
+    public float healAmount     = 150f;                   // HP restored
+    [Range(0f,1f)] public float healHpThreshold = 0.05f;  // triggers at/below this HP fraction
+    public float healDrinkTime  = 1.5f;                   // drink act length — anim plays + invulnerable for this long
+    public string healDrinkState = "Drink";               // item-use / drink anim state
 
     [Header("Combo pacing")]
-    public int   comboStartFrames = 10;
-    public float comboFps         = 30f;
-    public float comboGapB        = 0.20f;
-    public float comboGapD        = 0.40f;
+    public float comboGapB        = 0.12f;   // tightened from 0.20 — combos flow instead of feeling disjointed
+    public float comboGapD        = 0.22f;   // tightened from 0.40
+    public float appendADelay     = 0.35f;   // pause before Attack-B's optional tag-on Attack-A (its own knob)
     public float hitCooldown      = 0.3f;
+
+    [Header("Block-break retreat (block 2+ hits in one guard -> dodge away)")]
+    public int   blockBreakHits = 2;     // blocked hits in a single guard that trigger the break-out
+    public float blockBreakDist = 3f;    // dodge back until further than this from the player...
+    public float blockBreakHold = 0.4f;  // ...and stay beyond it this long (checked only between dodges)
 
     [Header("Hitbox reach (forward offset, metres) — +15% range")]
     public float attackAReach = 0.2875f;   // was 0.25
     public float spearCReach  = 0.8625f;   // was 0.75
     public float otherReach   = 0.575f;    // was 0.5
-    public float hitRadius    = 0.3f;
+    public float hitRadius    = 0.3f;     // capsule WIDTH (radius)
+    public float hitLength    = 0f;       // capsule TUBE length along forward (0 = a plain sphere, old behaviour)
+    public float hitHeight    = 0f;       // capsule vertical offset off the root (raise to body height)
     public bool  drawGizmos   = true;
+
+    [Header("Attack clip STATE NAMES (frame-accurate playback)")]
+    public string attackAState = "2001_women_OnehandSW_attack_A";   // LightAttack / A swings
+    public string attackBState = "2011_women_OnehandSW_attack_B";   // Finisher
+    [Header("Per-clip hurtbox/parry FRAMES (windup ends -> hurtbox; parry = [start,end))")]
+    public int aWindup   = 21, aParryStart   = 21, aParryEnd   = 27;  // OnehandSW attack_A
+    public int bWindup   = 50, bParryStart   = 50, bParryEnd   = 56;  // OnehandSW attack_B (Finisher / Attack-E)
+    public int spAWindup = 20, spAParryStart = 20, spAParryEnd = 28;  // spear attack_A (Attack C)
+    public int spBWindup = 26, spBParryStart = 26, spBParryEnd = 33;  // spear attack_B (Attack D)
 
     NavMeshAgent _agent;
     PlayerStateMachine _playerSM;
     PlayerState _lastPlayerState;
-    float _hp, _stamina, _invulnUntil, _hurtUntil, _blockMeter, _specialThreshold, _blockHeldTimer, _blockStopTimer, _lightComboUntil, _blockTimer, _noDodgeUntil, _attackEReadyAt;
-    bool  _dead, _busy, _blocking, _staggered, _tired, _specialUsed, _aggressive, _wantDodge, _lowHp, _guardAggro, _introDone, _inRecover, _dodging, _mustAttack, _recoverHit, _wantAttackE, _specialActive;
+    float _hp, _stamina, _invulnUntil, _hurtUntil, _blockMeter, _specialThreshold, _blockHeldTimer, _blockStopTimer, _lightComboUntil, _blockTimer, _noDodgeUntil, _attackEReadyAt, _baseAccel, _lastAttackTime;
+    bool  _dead, _busy, _blocking, _staggered, _tired, _specialUsed, _aggressive, _wantDodge, _lowHp, _guardAggro, _introDone, _inRecover, _dodging, _mustAttack, _recoverHit, _wantAttackE, _specialActive, _parryable, _wantBlockBreak, _healUsed, _wantHeal;
+    int   _guardHits;
 
     public float CurrentHP => _hp;
     public bool  IsDead     => _dead;
     public float Poise01    => Mathf.Clamp01(_blockMeter / Mathf.Max(1f, blockMeterMax));
     public bool  IsTired    => _tired;
-
-    float ComboPause => comboStartFrames / Mathf.Max(1f, comboFps);
 
     void Awake()
     {
@@ -154,6 +184,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         _specialThreshold = Random.Range(specialHpPctMin, specialHpPctMax) * maxHP;
         _agent.updateRotation = false;
         _agent.speed = moveSpeed;
+        _baseAccel = _agent.acceleration;                 // inspector accel — used for all non-sprint movement
         _agent.stoppingDistance = meleeRange * 0.85f;
     }
 
@@ -162,7 +193,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     void Update()
     {
         if (_dead || player == null) return;
-        FacePlayer();
+        if (!_dodging) FacePlayer();   // freeze facing during dodges so directional dodges read cleanly (no sideways slide)
         _stamina = Mathf.Min(maxStamina, _stamina + staminaRegen * Time.deltaTime);
         // poise bar NEVER regens — only resets on break (TiredRoutine)
 
@@ -243,15 +274,19 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
             if (!_introDone) { yield return IntroSequence(); _introDone = true; continue; }
 
             if (_staggered || _tired) { yield return null; continue; }
+            if (!_healUsed && _hp <= maxHP * healHpThreshold) { _wantHeal = false; yield return HealRoutine(); continue; }
             if (!_specialUsed && _hp <= _specialThreshold) { yield return DoSpecial(); continue; }
+
+            // no perma-turtle: force an attack if it's gone too long without one
+            if (!_mustAttack && Time.time - _lastAttackTime > attackForceInterval) _mustAttack = true;
+
+            // blocked 2+ hits this guard -> break out: full dodge(s) until clear of the player (then MUST attack)
+            if (_wantBlockBreak) { _wantBlockBreak = false; yield return BlockBreakRetreat(); continue; }
 
             // Attack E — blocked too long with the player in range -> explode out of the guard into a fast attack_B
             if (_wantAttackE) { _wantAttackE = false; _blockTimer = 0f; yield return DoAttackE(); continue; }
 
-            // player light-attack combo -> immediately turtle through the whole thing (never dodge a light combo)
-            if (LightCombo) { _wantDodge = false; SetGuard(true); yield return null; continue; }
-
-            // just dodged -> the NEXT move must be an attack (never a block, never another dodge)
+            // forced attack — after a block-break dodge, or the 3s timer above. Overrides turtle/dodge reactions.
             if (_mustAttack)
             {
                 _mustAttack = false; _wantDodge = false;
@@ -260,6 +295,9 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
                 else                            yield return DoAttackD();
                 continue;
             }
+
+            // player light-attack combo -> immediately turtle through the whole thing (never dodge a light combo)
+            if (LightCombo) { _wantDodge = false; SetGuard(true); yield return null; continue; }
 
             // strong attack: usually dodge (base 75%, skewed by HP / aggression / poise / stamina) — otherwise guard it
             if (_wantDodge)
@@ -289,17 +327,16 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
                 continue;
             }
 
-            // in melee: default-guard (skip if aggressive OR if the player is blocking — never block a blocker)
-            bool wasBlocking = !Aggro() && !PlayerBlocking();
-            if (wasBlocking) { yield return GuardCalculate(); if (_tired || _staggered || _wantAttackE) continue; }
+            // in melee: only SOMETIMES raise the guard before attacking — rare above the turtle threshold, frequent
+            // below it. Never block while aggressive or while the player is blocking. Either branch then attacks.
+            bool defensive = _hp <= maxHP * defensiveHpThreshold;
+            bool wasBlocking = !Aggro() && !PlayerBlocking() && Random.value < (defensive ? defensiveBlockChance : normalBlockChance);
+            if (wasBlocking) { yield return GuardCalculate(); if (_tired || _staggered || _wantAttackE || _wantBlockBreak) continue; }
             if (_stamina < tiredStaminaThreshold && !PlayerBlocking()) { SetGuard(true); yield return null; continue; }
 
-            // low-HP: often just keep guarding to preserve itself (but never while the player is blocking)
-            if (_lowHp && !PlayerBlocking() && Random.value < lowHpGuardChance) { yield return null; continue; }
-
-            // leaving block to attack: dodge first (back/side if guarding, forward if aggressive) —
-            // but at low HP it's too weak to dodge, so it attacks straight out of the block
-            if (!_lowHp)
+            // leaving block to attack: dodge first (back/side if we guarded, forward if aggressive) —
+            // but when defensive (<= threshold HP) it's too weak to dodge, attacks straight out of the block
+            if (!defensive)
             {
                 if (wasBlocking) yield return ImpulseDodge();
                 else             yield return ForwardDodge();
@@ -313,7 +350,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     {
         SetGuard(false);
         if (_agent.isOnNavMesh) _agent.ResetPath();
-        if (anim != null) { anim.speed = 1f; anim.Play(battleStartState, 0, 0f); }   // women OnehandSW battlestart
+        if (anim != null) { anim.speed = 1f; anim.CrossFadeInFixedTime(battleStartState, 0.12f, 0); }   // women OnehandSW battlestart
         yield return Wait(1f);
         // walk slowly toward the player until within 3m (farRange)
         float t = 0f;
@@ -335,7 +372,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         if (_agent.isOnNavMesh) _agent.ResetPath();
         float dur = _lowHp ? guardCalculateTime * lowHpGuardMult : guardCalculateTime;
         float t = 0f, pBlockT = 0f;
-        while (t < dur && !_tired && !_staggered && !_wantAttackE)   // blocking: do NOT dodge (the guard absorbs strong attacks)
+        while (t < dur && !_tired && !_staggered && !_wantAttackE && !_wantBlockBreak)   // blocking: do NOT dodge (the guard absorbs strong attacks)
         {
             // never out-turtle the player: if they're blocking, hold guard only 0.20s then drop it and attack
             if (PlayerBlocking()) { pBlockT += Time.deltaTime; if (pBlockT >= 0.20f) break; }
@@ -345,35 +382,44 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         SetGuard(false);
     }
 
-    IEnumerator Recover(float dur)   // punish window — fully vulnerable; exits with a slow backward jump-hop, NO dodge.
-    {                                // a hit during the window drains hp+poise, flinches, and ends it early (see TakeDamage).
+    IEnumerator Recover(float dur)   // punish window — fully vulnerable; a hit ends it early (see TakeDamage).
+    {                                // exits with a SLOW, smoothly-blended "breather" snippet of the jump anim that
+                                     // OVERLAPS the window tail (early start is fine) and spills <= recoverHopTail past it.
         _inRecover = true; _recoverHit = false;
         SetGuard(false);
         if (_agent.isOnNavMesh) _agent.ResetPath();
         if (anim != null) { anim.SetBool("IsRunning", false); anim.SetFloat("Speed", 0f); }
-        float t = 0f;
-        while (t < dur && !_staggered && !_dead && !_recoverHit) { t += Time.deltaTime; yield return null; }
-        _inRecover = false;
-        if (_dead || _staggered) yield break;
-        if (_recoverHit) yield break;              // got punished -> the flinch already played, no hop
-        yield return WindowExitHop();              // 1031 jump @0.35x for 0.5s + 0.3m back nudge
-    }
 
-    IEnumerator WindowExitHop()
-    {
-        Vector3 away = transform.position - player.position; away.y = 0f;
-        if (away.sqrMagnitude < 0.0001f) away = -transform.forward;
-        away.Normalize();
-        if (anim != null) { anim.speed = recoverHopAnimSpeed; anim.Play(recoverJumpState, 0, 0f); }
-        yield return MoveOver(away, recoverHopBack, recoverHopTime);
+        float lead  = Mathf.Min(recoverHopTime, dur);   // breather overlaps this much of the window's tail
+        float hopAt = dur - lead;
+        float t = 0f; bool breathing = false;
+        while (t < dur && !_staggered && !_dead && !_recoverHit)
+        {
+            if (!breathing && t >= hopAt)               // begin the breather INSIDE the window
+            {
+                breathing = true;
+                if (anim != null) { anim.CrossFadeInFixedTime(recoverJumpState, recoverHopBlend, 0); anim.speed = recoverHopAnimSpeed; }
+            }
+            if (breathing && lead > 0.01f && _agent != null && _agent.isOnNavMesh)   // gentle backward drift for air
+            {
+                Vector3 away = transform.position - player.position; away.y = 0f;
+                if (away.sqrMagnitude > 0.0001f) _agent.Move(away.normalized * (recoverHopBack / lead) * Time.deltaTime);
+            }
+            t += Time.deltaTime; yield return null;
+        }
+        _inRecover = false;
+        if (_dead || _staggered) { if (anim != null) anim.speed = 1f; yield break; }
+        if (_recoverHit)         { if (anim != null) anim.speed = 1f; yield break; }   // punished -> flinch took over, no breather
+
+        yield return Wait(recoverHopTail);              // <=0.1s spill, then hand control back to the decision loop
         if (anim != null) anim.speed = 1f;
-        _noDodgeUntil = Time.time + postHopNoDodge;   // can't dodge straight out of the hop (anims would stack)
+        _noDodgeUntil = Time.time + postHopNoDodge;
     }
 
     void SetGuard(bool on)
     {
         // gameplay-instant, but a short crossfade so the guard's start anim is visible (not jarring)
-        if (on && !_blocking && anim != null) anim.CrossFadeInFixedTime(guardState, 0.12f, 0);
+        if (on && !_blocking) { _guardHits = 0; if (anim != null) { anim.speed = 1f; anim.CrossFadeInFixedTime(guardState, 0.12f, 0); } }   // new guard session -> reset blocked-hit count
         _blocking = on;
         if (anim != null) anim.SetBool("IsBlocking", on);
     }
@@ -414,6 +460,21 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         yield return DoDodge(toward.normalized, dodgeFrontState);
     }
 
+    // blocked blockBreakHits+ in one guard -> drop the block and dodge away until clear of the player.
+    // Dodges are never interrupted/stacked: the proximity check runs ONLY after each dodge anim finishes.
+    IEnumerator BlockBreakRetreat()
+    {
+        SetGuard(false);
+        while (!_dead)
+        {
+            yield return BackDodge();                                          // one full back dodge (un-interruptible)
+            float held = 0f;                                                   // dodge done -> now measure distance
+            while (held < blockBreakHold && Dist() > blockBreakDist) { held += Time.deltaTime; yield return null; }
+            if (Dist() > blockBreakDist && held >= blockBreakHold) break;      // far enough, long enough -> done
+        }
+        _mustAttack = true;                                                   // MUST attack after breaking out of a block with a dodge
+    }
+
     IEnumerator DoDodge(Vector3 dir, string state)
     {
         while (Time.time < _noDodgeUntil && !_dead) yield return null;   // delay (don't stack) a dodge right after the hop
@@ -426,7 +487,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         _busy = false;
     }
 
-    void PlayDodge(string state) { if (anim != null) { anim.speed = dodgeAnimSpeed; anim.Play(state, 0, 0f); } }
+    void PlayDodge(string state) { if (anim != null) { anim.CrossFadeInFixedTime(state, 0.12f, 0); anim.speed = dodgeAnimSpeed; } }
 
     IEnumerator MoveOver(Vector3 dir, float dist, float time)
     {
@@ -434,22 +495,31 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         while (t < time) { if (_agent != null && _agent.isOnNavMesh) _agent.Move(dir * (dist / time) * Time.deltaTime); t += Time.deltaTime; yield return null; }
     }
 
+    // Attack C parried -> kill its forward lunge momentum on the spot and recoil straight back to emphasize the parry
+    IEnumerator AttackCParryKnockback()
+    {
+        if (_agent != null) _agent.velocity = Vector3.zero;          // stop the lunge dead
+        Vector3 away = transform.position - player.position; away.y = 0f;
+        if (away.sqrMagnitude < 0.0001f) away = -transform.forward;
+        yield return MoveOver(away.normalized, attackCParryKnockback, attackCParryKnockTime);
+    }
+
     // ───────── Attack B (light-light-strong) ─────────
     IEnumerator DoAttackB()
     {
-        _busy = true; _aggressive = false; _mustAttack = false;
-        yield return Swing("LightAttack", lightLock,    comboLightDamage,    ComboPause, otherReach, forwardNudge);
-        if (_wantDodge || _staggered) { _busy = false; yield break; }
+        _busy = true; _aggressive = false; _mustAttack = false; _lastAttackTime = Time.time;
+        yield return FrameSwing(attackAState, null, aWindup, aParryStart, aParryEnd, comboLightDamage, poise * 0.5f, otherReach, forwardNudge, 8f);
+        if (_wantDodge || _staggered || _wantHeal) { _busy = false; yield break; }
         if (Fled()) { yield return AbortToAggro(); yield break; }
         yield return Wait(comboGapB);
-        yield return Swing("LightAttack", lightLock,    comboLightDamage,    0f, otherReach, forwardNudge);
-        if (_wantDodge || _staggered) { _busy = false; yield break; }
+        yield return FrameSwing(attackAState, null, aWindup, aParryStart, aParryEnd, comboLightDamage, poise * 0.5f, otherReach, forwardNudge, 8f);
+        if (_wantDodge || _staggered || _wantHeal) { _busy = false; yield break; }
         if (Fled()) { yield return AbortToAggro(); yield break; }
         yield return Wait(comboGapB);
-        yield return Swing("Finisher",    finisherLock, comboFinisherDamage, 0f, otherReach, forwardNudge);
-        if (_wantDodge || _staggered) { _busy = false; yield break; }
+        yield return FrameSwing(attackBState, null, bWindup, bParryStart, bParryEnd, comboFinisherDamage, poise * 0.5f, otherReach, forwardNudge, 8f);
+        if (_wantDodge || _staggered || _wantHeal) { _busy = false; yield break; }
         if (Dist() <= meleeRange && Random.value <= appendAChance)
-        { yield return Wait(comboGapB); yield return Swing("LightAttack", lightLock, attackADamage, 0f, attackAReach, forwardNudge); }
+        { yield return Wait(appendADelay); yield return FrameSwing(attackAState, null, aWindup, aParryStart, aParryEnd, attackADamage, poise * 0.5f, attackAReach, forwardNudge, 8f); }
         _busy = false;
         yield return Recover(recoverB);
     }
@@ -457,15 +527,14 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     // ───────── Attack C (sprint in + spear) ─────────
     IEnumerator DoAttackC()
     {
-        _busy = true; _aggressive = false; _mustAttack = false;
-        _agent.speed = sprintSpeed; anim?.SetBool("IsRunning", true); anim?.SetFloat("Speed", 1f);
+        _busy = true; _aggressive = false; _mustAttack = false; _lastAttackTime = Time.time;
+        _agent.speed = sprintSpeed; _agent.acceleration = sprintAcceleration; anim?.SetBool("IsRunning", true); anim?.SetFloat("Speed", 1f);
         float t = 0f;
         while (Dist() > meleeRange && t < 2.5f) { if (_agent.isOnNavMesh) _agent.SetDestination(player.position); anim?.SetFloat("Speed", 1f); t += Time.deltaTime; yield return null; }
-        _agent.speed = moveSpeed; anim?.SetBool("IsRunning", false);
+        _agent.speed = moveSpeed; _agent.acceleration = _baseAccel; anim?.SetBool("IsRunning", false);
         if (_agent.isOnNavMesh) _agent.ResetPath();
-        anim?.SetTrigger("HeavyAttack");
-        yield return SpearHit(spearLock, attackCDamage, 0f, spearCReach, 0f);
-        if (_wantDodge || _staggered) { _busy = false; yield break; }
+        yield return FrameSwing(null, "HeavyAttack", spAWindup, spAParryStart, spAParryEnd, attackCDamage, poise * 0.7f, spearCReach, attackCNudge, 15f);
+        if (_wantDodge || _staggered || _wantHeal) { if (_staggered) StartCoroutine(AttackCParryKnockback()); _busy = false; yield break; }
         _busy = false;
         yield return Recover(recoverC);
     }
@@ -473,18 +542,17 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     // ───────── Attack D (A -> women spearB -> A) ─────────
     IEnumerator DoAttackD()
     {
-        _busy = true; _aggressive = false; _mustAttack = false;
-        yield return Swing("LightAttack", lightLock, attackADamage, ComboPause, attackAReach, forwardNudge);
-        if (_wantDodge || _staggered) { _busy = false; yield break; }
+        _busy = true; _aggressive = false; _mustAttack = false; _lastAttackTime = Time.time;
+        yield return FrameSwing(attackAState, null, aWindup, aParryStart, aParryEnd, attackADamage, poise * 0.5f, attackAReach, forwardNudge, 8f);
+        if (_wantDodge || _staggered || _wantHeal) { _busy = false; yield break; }
         if (Fled()) { yield return AbortToAggro(); yield break; }
         yield return Wait(comboGapD);
-        anim?.SetTrigger("SpearB");
-        yield return SpearHit(spearLock, spearBDamage, 0f, otherReach, forwardNudge);
-        if (_wantDodge || _staggered) { _busy = false; yield break; }
+        yield return FrameSwing(null, "SpearB", spBWindup, spBParryStart, spBParryEnd, spearBDamage, poise * 0.7f, otherReach, forwardNudge, 15f);
+        if (_wantDodge || _staggered || _wantHeal) { _busy = false; yield break; }
         if (Fled()) { yield return AbortToAggro(); yield break; }
         yield return Wait(comboGapD);
-        yield return Swing("LightAttack", lightLock, attackADamage, 0f, attackAReach, forwardNudge);
-        if (_wantDodge || _staggered) { _busy = false; yield break; }
+        yield return FrameSwing(attackAState, null, aWindup, aParryStart, aParryEnd, attackADamage, poise * 0.5f, attackAReach, forwardNudge, 8f);
+        if (_wantDodge || _staggered || _wantHeal) { _busy = false; yield break; }
         _busy = false;
         yield return Recover(recoverD);
     }
@@ -492,22 +560,31 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     // ───────── Attack E (guard-break punish) — fast women OnehandSW attack_B straight out of the block ─────────
     IEnumerator DoAttackE()
     {
-        _busy = true; _aggressive = false; _mustAttack = false; _wantDodge = false;
+        _busy = true; _aggressive = false; _mustAttack = false; _wantDodge = false; _lastAttackTime = Time.time;
         _attackEReadyAt = Time.time + attackECooldown;   // start the cooldown
         SetGuard(false);
         if (_agent.isOnNavMesh) _agent.ResetPath();
         _stamina = Mathf.Max(0, _stamina - 10f);
-        if (anim != null) { anim.speed = attackEAnimSpeed / ATTACK_B_BASE; anim.Play(attackEState, 0, 0f); }   // true 1.8x natural
-        float t = 0f; bool dealt = false;
-        while (t < attackELock)
+        // fast attack_B, but hurtbox/parry still keyed to the clip's frames (attack_B = b* frames), read live
+        if (anim != null) { anim.Play(attackEState, 0, 0f); anim.Update(0f); anim.speed = attackEAnimSpeed / ATTACK_B_BASE; }
+        float frames = 30f;
+        if (anim != null) { var ci = anim.GetCurrentAnimatorClipInfo(0); if (ci.Length > 0 && ci[0].clip != null) frames = ci[0].clip.length * ci[0].clip.frameRate; }
+        float frame = 0f, prev = 0f, guard = 0f; bool dealt = false;
+        while (guard < 3f)
         {
-            if (forwardNudge > 0f && t < attackELock * 0.5f && _agent != null && _agent.isOnNavMesh)
-                _agent.Move(transform.forward * (forwardNudge / (attackELock * 0.5f)) * Time.deltaTime);
-            t += Time.deltaTime;
+            if (_wantDodge || _staggered || _wantHeal) break;
+            if (anim != null) frame = anim.GetCurrentAnimatorStateInfo(0).normalizedTime * frames;
+            _parryable = !_specialActive && frame >= bParryStart && frame < bParryEnd;
+            float df = frame - prev; prev = frame;
+            if (forwardNudge > 0f && frame <= bWindup && df > 0f && _agent != null && _agent.isOnNavMesh)
+                _agent.Move(transform.forward * (forwardNudge * df / Mathf.Max(1f, bWindup)));
             // hit reaches the whole 1.75m in front: sphere centred at half-reach, radius = half-reach
-            if (!dealt && t >= attackELock * 0.4f) { MeleeHitR(attackEDamage, poise * 0.6f, attackEReach * 0.5f, attackEReach * 0.5f); dealt = true; }
-            yield return null;
+            if (!dealt && frame >= bWindup) { _parryable = !_specialActive && bWindup >= bParryStart && bWindup < bParryEnd; MeleeHitR(attackEDamage, poise * 0.6f, attackEReach * 0.5f, attackEReach * 0.5f); dealt = true; }
+            if (dealt && frame >= bParryEnd) break;
+            if (frame >= frames - 0.5f) break;
+            guard += Time.deltaTime; yield return null;
         }
+        _parryable = false;
         if (anim != null) anim.speed = 1f;
         _busy = false;
         yield return Recover(recoverB);
@@ -544,7 +621,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
                 float step = Mathf.Min((lungeNudge / lungeTime) * lungeNudgeSpeed * Time.deltaTime, lungeNudge - nudged);
                 _agent.Move(transform.forward * step); nudged += step;
             }
-            if (!struck && t >= lungeTime * lungeStrikeFraction) { MeleeHitR(specialDamage, poise, otherReach); struck = true; }
+            if (!struck && t >= lungeTime * lungeStrikeFraction) { SpecialSweepHit(specialDamage, poise); struck = true; }
             t += Time.deltaTime; yield return null;
         }
 
@@ -555,46 +632,96 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         _busy = false; _specialActive = false;
     }
 
-    // ───────── swing / hit helpers (nudge = forward advance during the swing) ─────────
-    IEnumerator Swing(string trig, float lockT, float dmg, float windup, float reach, float nudge)
+    // ───────── Heal — once-ever desperation potion ─────────
+    // At <=healHpThreshold HP (and not staggered) it drops everything, panics back with two quick dodges, then
+    // draws the iksir and drinks (invulnerable so it always lands), healing healAmount. Healing RE-ARMS the
+    // desperation lunge so it can fire once more as HP descends again; the heal itself can only ever happen once.
+    IEnumerator HealRoutine()
     {
-        if (_wantDodge || _staggered) yield break;                       // strong attack -> bail to a dodge
-        if (windup > 0f) yield return Wait(windup);
-        anim?.SetTrigger(trig);
-        _stamina = Mathf.Max(0, _stamina - 8f);
-        float t = 0f; bool dealt = false;
-        while (t < lockT)
-        {
-            if (_wantDodge || _staggered) yield break;
-            if (nudge > 0f && t < lockT * 0.5f && _agent != null && _agent.isOnNavMesh)
-                _agent.Move(transform.forward * (nudge / (lockT * 0.5f)) * Time.deltaTime);
-            t += Time.deltaTime;
-            if (!dealt && t >= lockT * 0.4f) { MeleeHitR(dmg, poise * 0.5f, reach); dealt = true; }
-            yield return null;
-        }
+        _healUsed = true; _wantHeal = false;
+        _busy = true; _aggressive = false; _wantDodge = false; _wantBlockBreak = false; _mustAttack = false;
+        SetGuard(false);
+        if (_agent.isOnNavMesh) _agent.ResetPath();
+
+        yield return BackDodge();                          // two quick back-dodges (their i-frames protect it)
+        yield return BackDodge();
+
+        _busy = true;                                      // dodges cleared it
+        _invulnUntil = Time.time + healDrinkTime;          // invulnerable through the drink so the heal can't be denied
+        if (potionModel != null) potionModel.SetActive(true);
+        if (anim != null) { anim.speed = 1f; anim.CrossFadeInFixedTime(healDrinkState, 0.15f, 0); }
+        yield return Wait(healDrinkTime);
+        _hp = Mathf.Min(maxHP, _hp + healAmount);
+        if (potionModel != null) potionModel.SetActive(false);
+
+        _specialUsed = false; _lowHp = false;              // re-arm the lunge for the next descent; heal stays once-only
+        _mustAttack = false; _busy = false;
     }
 
-    IEnumerator SpearHit(float lockT, float dmg, float windup, float reach, float nudge)
+    // ───────── frame-accurate swing helper ─────────
+    // Plays the attack (by STATE name for the OnehandSW clips so re-use restarts cleanly, or by TRIGGER for the
+    // spears), then times everything to the ACTUAL playing clip: hurtbox lands at the `windup` contact frame,
+    // and the boss is parryable ONLY across [parryStart, parryEnd). Reads the clip's real frameRate, so any
+    // fps / state-speed is handled automatically. `nudge` is spread across the windup (the step-in).
+    IEnumerator FrameSwing(string playState, string trig, int windup, int parryStart, int parryEnd,
+                           float dmg, float poiseDmg, float reach, float nudge, float staCost)
     {
-        if (_wantDodge || _staggered) yield break;
-        _stamina = Mathf.Max(0, _stamina - 15f);
-        float t = 0f; bool dealt = false;
-        while (t < lockT)
+        if (_wantDodge || _staggered || _wantHeal) yield break;
+        _stamina = Mathf.Max(0, _stamina - staCost);
+        if (anim != null)
         {
-            if (_wantDodge || _staggered) yield break;
-            if (nudge > 0f && t < lockT * 0.5f && _agent != null && _agent.isOnNavMesh)
-                _agent.Move(transform.forward * (nudge / (lockT * 0.5f)) * Time.deltaTime);
-            t += Time.deltaTime;
-            if (!dealt && t >= lockT * 0.45f) { MeleeHitR(dmg, poise * 0.7f, reach); dealt = true; }
-            yield return null;
+            anim.speed = 1f;
+            if (!string.IsNullOrEmpty(playState)) { anim.Play(playState, 0, 0f); anim.Update(0f); }   // restart cleanly each use
+            else
+            {
+                anim.SetTrigger(trig);
+                float w = 0f;
+                while (!anim.IsInTransition(0) && w < 0.05f) { w += Time.deltaTime; yield return null; }   // wait for the swap to start
+                w = 0f;
+                while (anim.IsInTransition(0) && w < 0.3f)   { w += Time.deltaTime; yield return null; }   // ...and finish
+            }
         }
+
+        float frames = 30f;
+        if (anim != null) { var ci = anim.GetCurrentAnimatorClipInfo(0); if (ci.Length > 0 && ci[0].clip != null) frames = ci[0].clip.length * ci[0].clip.frameRate; }
+
+        float frame = 0f, prev = 0f, guard = 0f; bool dealt = false;
+        while (guard < 4f)
+        {
+            if (_wantDodge || _staggered || _wantHeal) { _parryable = false; yield break; }
+            if (anim != null) frame = anim.GetCurrentAnimatorStateInfo(0).normalizedTime * frames;
+            _parryable = !_specialActive && frame >= parryStart && frame < parryEnd;
+            float df = frame - prev; prev = frame;
+            if (nudge > 0f && frame <= windup && df > 0f && _agent != null && _agent.isOnNavMesh)
+                _agent.Move(transform.forward * (nudge * df / Mathf.Max(1f, windup)));     // step in over the windup (total = nudge)
+            if (!dealt && frame >= windup) { _parryable = !_specialActive && windup >= parryStart && windup < parryEnd; MeleeHitR(dmg, poiseDmg, reach); dealt = true; }   // contact AFTER the windup; parryable keyed to windup (frame-rate robust)
+            if (dealt && frame >= parryEnd) break;                                              // hit landed + parry window closed
+            if (frame >= frames - 0.5f) break;                                                  // clip finished
+            guard += Time.deltaTime; yield return null;
+        }
+        _parryable = false;
+        if (!dealt && !_wantDodge && !_staggered) MeleeHitR(dmg, poiseDmg, reach);   // safety: never silently whiff
     }
 
     void MeleeHitR(float dmg, float poiseDmg, float reach) => MeleeHitR(dmg, poiseDmg, reach, hitRadius);
 
+    // CAPSULE hurtbox — a `hitLength`-long tube of radius `radius`, centred `reach` m in front along forward.
+    // hitLength 0 collapses both caps onto one point => identical to the old sphere, so existing tuning is unchanged.
     void MeleeHitR(float dmg, float poiseDmg, float reach, float radius)
     {
-        foreach (var h in Physics.OverlapSphere(transform.position + transform.forward * reach, radius))
+        Vector3 center = transform.position + transform.forward * reach + Vector3.up * hitHeight;
+        Vector3 half   = transform.forward * (hitLength * 0.5f);
+        foreach (var h in Physics.OverlapCapsule(center - half, center + half, radius))
+            if (h.CompareTag("Player") && h.TryGetComponent<IDamageable>(out var t)) { t.TakeDamage(dmg, poiseDmg, transform.position); return; }
+    }
+
+    // wide BOX sweep for the desperation lunge only — specialSweepLength forward × specialSweepWidth wide,
+    // so the strike can't be sidestepped (a well-timed i-frame dodge still beats it; nothing else uses this).
+    void SpecialSweepHit(float dmg, float poiseDmg)
+    {
+        Vector3 center = transform.position + transform.forward * (specialSweepLength * 0.5f) + Vector3.up * 1.0f;
+        Vector3 half   = new Vector3(specialSweepWidth * 0.5f, 2.5f, specialSweepLength * 0.5f);
+        foreach (var h in Physics.OverlapBox(center, half, transform.rotation))
             if (h.CompareTag("Player") && h.TryGetComponent<IDamageable>(out var t)) { t.TakeDamage(dmg, poiseDmg, transform.position); return; }
     }
 
@@ -608,6 +735,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         if (_blocking)   // GUARD up -> fill poise bar, NO hp (poiseDamage now counts, so strong attacks break the guard faster)
         {
             _blockMeter += damage + poiseDamage;
+            if (++_guardHits >= blockBreakHits) _wantBlockBreak = true;   // blocked 2+ this guard -> break out with a dodge
             if (_blockMeter >= blockMeterMax && !_tired) StartCoroutine(TiredRoutine());
             return;
         }
@@ -625,6 +753,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
 
         _hp = Mathf.Max(0, _hp - damage);
         if (_hp <= 0f) { Die(); return; }
+        if (!_healUsed && _hp <= maxHP * healHpThreshold) _wantHeal = true;   // drop everything & heal (brain picks it up next tick)
         if (!_busy)   // super-armor during attacks
         {
             if (poiseDamage >= poise) StartCoroutine(Stagger());
@@ -633,14 +762,14 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     }
 
     // IStaggerable — the Mimic is parryable whenever its hit connects, EXCEPT its last-resort desperation lunge
-    public bool CanBeParried => !_specialActive;
+    public bool CanBeParried => _parryable && !_specialActive;   // only during each swing's [parryStart,parryEnd) frames; never the lunge
 
     // IStaggerable — PARRIED: take poise (no HP), then play the stagger (deaf for its duration)
     public void Stagger(float poiseDamage)
     {
         if (_dead || _staggered) return;
         _blockMeter = Mathf.Min(blockMeterMax, _blockMeter + poiseDamage);
-        StartCoroutine(Stagger());
+        StartCoroutine(Stagger());   // every parry -> full stagger, interrupts whatever it was doing
     }
 
     IEnumerator Stagger()
@@ -697,18 +826,43 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     void UpdateLocomotionAnim()
     {
         if (anim == null) return;
-        anim.SetFloat("Speed", Mathf.Clamp01(_agent.velocity.magnitude / Mathf.Max(0.1f, moveSpeed)), 0.1f, Time.deltaTime);
+        // drive the walk/idle blend from the agent's STEERING intent, not noisy actual velocity -> no flicker
+        bool moving = _agent != null && _agent.desiredVelocity.sqrMagnitude > 0.05f;
+        anim.SetFloat("Speed", moving ? 1f : 0f, 0.12f, Time.deltaTime);
     }
 
     IEnumerator Wait(float s) { float t = 0f; while (t < s) { t += Time.deltaTime; yield return null; } }
+
+    void DrawHitCapsule(float reach, Color c)
+    {
+        Gizmos.color = c;
+        Vector3 center = transform.position + transform.forward * reach + Vector3.up * hitHeight;
+        Vector3 half   = transform.forward * (hitLength * 0.5f);
+        Vector3 p0 = center - half, p1 = center + half;
+        Gizmos.DrawWireSphere(p0, hitRadius);
+        if (hitLength > 0.001f)
+        {
+            Gizmos.DrawWireSphere(p1, hitRadius);
+            Vector3 r = transform.right * hitRadius, u = transform.up * hitRadius;
+            Gizmos.DrawLine(p0 + r, p1 + r); Gizmos.DrawLine(p0 - r, p1 - r);
+            Gizmos.DrawLine(p0 + u, p1 + u); Gizmos.DrawLine(p0 - u, p1 - u);
+        }
+    }
 
     void OnDrawGizmos()
     {
         if (!drawGizmos) return;
         Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(transform.position, meleeRange);
         Gizmos.color = Color.cyan;   Gizmos.DrawWireSphere(transform.position, farRange);
-        Gizmos.color = new Color(1f,0.85f,0f,0.9f); Gizmos.DrawWireSphere(transform.position + transform.forward * attackAReach, hitRadius);
-        Gizmos.color = new Color(1f,0.45f,0f,0.9f); Gizmos.DrawWireSphere(transform.position + transform.forward * otherReach,  hitRadius);
-        Gizmos.color = Color.red;                   Gizmos.DrawWireSphere(transform.position + transform.forward * spearCReach, hitRadius);
+        DrawHitCapsule(attackAReach, new Color(1f,0.85f,0f,0.9f));
+        DrawHitCapsule(otherReach,   new Color(1f,0.45f,0f,0.9f));
+        DrawHitCapsule(spearCReach,  Color.red);
+
+        // desperation-lunge sweep box (purple) — only live during the lunge strike, drawn here for tuning
+        Matrix4x4 prev = Gizmos.matrix;
+        Gizmos.matrix = Matrix4x4.TRS(transform.position + transform.forward * (specialSweepLength * 0.5f) + Vector3.up * 1.0f, transform.rotation, Vector3.one);
+        Gizmos.color  = new Color(0.7f, 0f, 1f, 0.6f);
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(specialSweepWidth, 5f, specialSweepLength));
+        Gizmos.matrix = prev;
     }
 }

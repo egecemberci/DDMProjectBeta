@@ -11,7 +11,13 @@ public class PlayerBlock : MonoBehaviour
     [Header("Parry (the first moments of a block)")]
     public float parryWindow      = 0.15f;  // a hit blocked within this long after STARTING a block = a parry
     public float parryPoiseDamage = 15f;    // poise dealt to the staggered enemy on a parry (no HP damage)
-    public float parryFindRadius  = 1.5f;   // search radius around the attacker's position to find the enemy entity
+    // (parry target search reuses the heavy attack's exact capsule — see TryParry; no separate radius needed)
+    public bool  drawParryGizmo   = true;   // visualize the parry search capsule
+    [Header("Parry hitbox (capsule in front of the player; ×player scale)")]
+    public float parryRange  = 6.73f;   // forward distance to the capsule centre
+    public float parryWidth  = 0.6f;    // capsule radius (width)
+    public float parryLength = 0f;      // capsule tube length (0 = sphere)
+    public float parryHeight = 3.85f;   // vertical offset off the root
 
     [Header("Knockback")]
     public float knockback     = 0.15f;       // normal nudge per blocked hit
@@ -35,6 +41,8 @@ public class PlayerBlock : MonoBehaviour
     Animator            _anim;
     float               _parryTimer;           // counts down the parry window after a block starts
     bool                _lockedUntilRelease;   // after a break, must release + repress to block again
+    bool                _prevBlockHeld;        // edge-detect to re-arm the parry window on each fresh tap
+    LockOnSystem        _lockOn;               // prefer staggering the locked-on target in a pack
 
     void Awake()
     {
@@ -43,6 +51,7 @@ public class PlayerBlock : MonoBehaviour
         _input = GetComponent<PlayerInputHandler>();
         _cc    = GetComponent<CharacterController>();
         _anim  = GetComponentInChildren<Animator>();
+        _lockOn = GetComponent<LockOnSystem>();
     }
 
     void Update()
@@ -53,10 +62,18 @@ public class PlayerBlock : MonoBehaviour
 
         if (!_input.BlockHeld) _lockedUntilRelease = false;                          // released -> may block again
 
+        // re-arm the parry window on every FRESH guard tap (rising edge), not just the first raise — so you can
+        // tap-parry late hits (Attack-B's finisher, Attack E) mid-combo instead of only the first blocked hit
+        bool freshTap = _input.BlockHeld && !_prevBlockHeld;
+        _prevBlockHeld = _input.BlockHeld;
+
         // can't raise the guard mid-attack — block no longer interrupts an attack animation
         bool wantBlock = _input.BlockHeld && !_lockedUntilRelease && _stats.HasStamina(blockMinStamina) && !_sm.IsAttacking();
         if (wantBlock) { if (!IsBlocking) StartBlock(); }                            // holding block costs NO stamina
         else if (IsBlocking && !IsBlockStunned) StopBlock();
+
+        if (freshTap && !_lockedUntilRelease && !_sm.IsAttacking() && _stats.HasStamina(blockMinStamina))
+            _parryTimer = parryWindow;                                              // a tap re-opens the window even while already guarding
 
         if (_parryTimer > 0f) _parryTimer -= Time.deltaTime;
     }
@@ -99,27 +116,56 @@ public class PlayerBlock : MonoBehaviour
         }
     }
 
-    // find the enemy entity that just hit us (it passed its own world position). It can only be PARRIED while it
-    // is in its own parryable window (CanBeParried) — outside that, this returns false and the hit is a normal block.
+    // Find the enemy to parry inside the PLAYER's heavy-attack capsule (exact same volume / forward offset / height),
+    // so against a pack you parry the one you're FACING / locked onto, not whatever is nearest the attacker. An enemy
+    // can only be PARRIED while in its own parryable window (CanBeParried); otherwise this returns false (normal block).
     bool TryParry(Vector3 attackerPos)
     {
+        float s = transform.lossyScale.x;
+        Vector3 center  = transform.position + transform.forward * parryRange * s + Vector3.up * parryHeight * s;
+        Vector3 halfLen = transform.forward * (parryLength * 0.5f * s);
+        float   radius  = parryWidth * s;
+        Transform locked = (_lockOn != null && _lockOn.IsLockedOn) ? _lockOn.LockedTarget : null;
+
         IStaggerable best = null; float bestSqr = float.MaxValue;
-        foreach (var c in Physics.OverlapSphere(attackerPos, parryFindRadius))
+        foreach (var c in Physics.OverlapCapsule(center - halfLen, center + halfLen, radius))
         {
             var st = c.GetComponentInParent<IStaggerable>();
-            if (st == null || !st.CanBeParried) continue;   // attacker not in its parryable window -> can't parry it
-            float sq = (c.transform.position - attackerPos).sqrMagnitude;
+            if (st == null || !st.CanBeParried) continue;
+            if (locked != null && (c.transform == locked || c.transform.IsChildOf(locked))) { best = st; break; }  // locked-on target wins outright
+            float sq = (c.transform.position - transform.position).sqrMagnitude;
             if (sq < bestSqr) { bestSqr = sq; best = st; }
         }
         if (best != null) { best.Stagger(parryPoiseDamage); return true; }
         return false;
     }
 
+    // debug view of the parry search volume — the heavy attack's capsule, read live so it always matches
+    void OnDrawGizmos()
+    {
+        if (!drawParryGizmo) return;
+        float s = transform.lossyScale.x;
+        Vector3 center = transform.position + transform.forward * parryRange * s + Vector3.up * parryHeight * s;
+        Vector3 half   = transform.forward * (parryLength * 0.5f * s);
+        Vector3 p0 = center - half, p1 = center + half;
+        float r = parryWidth * s;
+        Gizmos.color = new Color(0.2f, 0.85f, 1f, 0.85f);   // cyan = parry search volume
+        Gizmos.DrawWireSphere(p0, r);
+        if (parryLength > 0.001f)
+        {
+            Gizmos.DrawWireSphere(p1, r);
+            Vector3 rt = transform.right * r, up = transform.up * r;
+            Gizmos.DrawLine(p0 + rt, p1 + rt); Gizmos.DrawLine(p0 - rt, p1 - rt);
+            Gizmos.DrawLine(p0 + up, p1 + up); Gizmos.DrawLine(p0 - up, p1 - up);
+        }
+    }
+
     IEnumerator StanceBreakRoutine(Vector3 dir)
     {
         IsStanceBroken = true;
         _sm.ChangeState(PlayerState.Stunned);                                       // stuck in idle, can't act
-        if (_anim != null) { _anim.speed = stanceBreakHurtSpeed; _anim.SetTrigger("Hit"); }
+        // force the get-hit pose directly — SetTrigger("Hit") won't transition out of the guard state we're leaving
+        if (_anim != null) { _anim.ResetTrigger("Hit"); _anim.speed = stanceBreakHurtSpeed; _anim.Play("Hit", 0, 0f); }
         _stats.BoostRegen(stanceBreakTime, _stats.maxStamina * stanceBreakRegenTo / Mathf.Max(0.1f, stanceBreakTime));
 
         float knockDur = Mathf.Min(0.3f, stanceBreakTime);
