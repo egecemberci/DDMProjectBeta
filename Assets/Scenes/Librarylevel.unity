@@ -443,6 +443,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -8678823145569952518, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
+--- !u!20 &232803275 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 5026583232273595572, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
+  m_PrefabInstance: {fileID: 785371224}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &295187232 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5050422055867433376, guid: c319f658fe547cd49ac75c08ed3cdda0, type: 3}
@@ -1484,10 +1489,10 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1116064572}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: 6688134cbda345345ac403705f1f251b, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: f249a7ff84b4d0246a7b79ee44adf859, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
-  m_TargetCamera: {fileID: 0}
+  m_TargetCamera: {fileID: 232803275}
   m_TargetTexture: {fileID: 0}
   m_TimeReference: 0
   m_TargetMaterialRenderer: {fileID: 0}
