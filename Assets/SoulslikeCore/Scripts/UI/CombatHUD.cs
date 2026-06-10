@@ -21,6 +21,9 @@ using UnityEngine;
 // ============================================================================
 public class CombatHUD : MonoBehaviour
 {
+    [Header("Debug draw — master toggle for the whole HUD")]
+    public bool draw = true;
+
     // ── PLACEHOLDER UI VALUES (all px unless noted) ─────────────────────────
     [Header("Player panel — anchored bottom-left")]
     public float playerMarginLeft   = 24f;
@@ -82,6 +85,7 @@ public class CombatHUD : MonoBehaviour
 
     void OnGUI()
     {
+        if (!draw) return;
         if (_label == null)
         {
             _label = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, fontSize = fontSize };
