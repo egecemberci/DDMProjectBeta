@@ -52,7 +52,7 @@ public class PlayerRespawnManager : MonoBehaviour
         if (restartAction != null)
             restartAction.performed -= OnRestart;
 
-        // reset position
+        // teleport back
         playerStats.transform.position = lastCheckpoint;
 
         // reset stats
@@ -63,7 +63,15 @@ public class PlayerRespawnManager : MonoBehaviour
         if (sm != null)
             sm.ChangeState(PlayerState.Idle);
 
-        // 🔥 FIX #1: FORCE ANIMATOR RESET (THIS IS YOUR PROBLEM)
+        // reset combat safely (NO missing functions)
+        var combat = playerStats.GetComponent<PlayerCombat>();
+        if (combat != null)
+        {
+            combat.enabled = false;
+            combat.enabled = true;
+        }
+
+        // reset animator
         var anim = playerStats.GetComponentInChildren<Animator>();
         if (anim != null)
         {
@@ -71,9 +79,8 @@ public class PlayerRespawnManager : MonoBehaviour
             anim.Update(0f);
         }
 
-        // 🔥 FIX #2: STOP ANY RAGDOLL / PHYSICS (if present)
-        Rigidbody[] rbs = playerStats.GetComponentsInChildren<Rigidbody>();
-        foreach (var rb in rbs)
+        // reset physics
+        foreach (var rb in playerStats.GetComponentsInChildren<Rigidbody>())
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
