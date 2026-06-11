@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: 5c4f3e3ad8855064e86629f104e8e523
+  - enabled: 1
     path: Assets/Scenes/Canyonlevel.unity
     guid: 1e150a8f8df881948b27e6b76ab0bb4f
   - enabled: 1
