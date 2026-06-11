@@ -90,14 +90,19 @@ public class MinionEnemy : MonoBehaviour, IDamageable, IStaggerable
     AnimationClipPlayable  _walkP, _attackP;
     float _hp, _comboReadyAt, _wanderTimer;
     bool  _dead, _attacking, _staggered, _parryable, _moving, _aggroed, _retreating;
+    MinionAudio _audio;
+    WalkSfx     _walkSfx;
 
     public bool CanBeParried => _parryable;
+    public bool IsAggro => _aggroed;          // read by MinionAudio to gate the idle laugh
 
     void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
         _anim  = GetComponent<Animator>();
         if (_anim == null) _anim = GetComponentInChildren<Animator>();
+        _audio = GetComponent<MinionAudio>();
+        _walkSfx = GetComponent<WalkSfx>();
         _hp = maxHP;
         _home = transform.position;
         if (_agent != null)
@@ -156,6 +161,12 @@ public class MinionEnemy : MonoBehaviour, IDamageable, IStaggerable
 
     void Update()
     {
+        if (_walkSfx != null)
+        {
+            bool moving = !_dead && _agent != null && _agent.isOnNavMesh && _agent.velocity.sqrMagnitude > 0.05f;
+            bool sprinting = moving && _agent != null && _agent.speed > patrolSpeed + 0.1f;   // chase/combat = faster than patrol
+            _walkSfx.Report(moving, sprinting);
+        }
         if (_dead || _player == null) return;
         if (_staggered) return;
 
@@ -304,6 +315,7 @@ public class MinionEnemy : MonoBehaviour, IDamageable, IStaggerable
     IEnumerator DoCombo()
     {
         _attacking = true;
+        if (_audio != null) _audio.PlayAttack();          // SFX: start the attack 'wee' as the swing begins
         int near = CountNearbyEnemies();
         if (near == 0)
         {
@@ -393,6 +405,7 @@ public class MinionEnemy : MonoBehaviour, IDamageable, IStaggerable
     {
         if (_dead) return;
         _hp -= damage;
+        if (_audio != null) _audio.PlayHurt();            // SFX: slap — interrupts everything, queues, survives death
         if (_hp <= 0f) Die();
     }
 
@@ -417,6 +430,7 @@ public class MinionEnemy : MonoBehaviour, IDamageable, IStaggerable
     void Die()
     {
         _dead = true; _parryable = false;
+        if (_audio != null) _audio.OnDeath();             // SFX: kill all but the last-played hurt (it finishes detached)
         if (_agent != null) { if (_agent.isOnNavMesh) _agent.ResetPath(); _agent.enabled = false; }
         var col = GetComponent<Collider>(); if (col) col.enabled = false;
         if (_graph.IsValid()) _walkP.SetSpeed(0f);

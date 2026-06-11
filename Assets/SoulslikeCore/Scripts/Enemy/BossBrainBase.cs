@@ -75,9 +75,16 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
     public float hitCooldown = 0.3f;
     public bool  drawGizmos  = true;
 
+    [Header("Audio")]
+    public AudioClip swingClip;   // daviddumaisaudio — sword slash/swing, fired mid-swing (see swingSoundFrame)
+    public AudioClip crashClip;   // swordcrash — played when the boss perfect-blocks the player's heavy stab
+    public float     swingSoundEndDelay = 0.5f;   // after the swing sound ends (naturally OR interrupted) no new one for this long
+
     // ── runtime ──
     protected NavMeshAgent _agent;
     protected PlayerStateMachine _playerSM;
+    protected CombatSfx _sfx;
+    protected WalkSfx _walkSfx;
     PlayerBlock _playerBlock;
     PlayerDodge _playerDodge;
     protected float _hp, _stamina;
@@ -100,6 +107,8 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
     protected virtual void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _sfx   = GetComponent<CombatSfx>();
+        _walkSfx = GetComponent<WalkSfx>();
         if (anim == null)   anim = GetComponentInChildren<Animator>();
         if (anim != null)   anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;
         if (player == null) { var p = GameObject.FindWithTag("Player"); if (p) player = p.transform; }
@@ -112,6 +121,7 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
 
     protected virtual void Update()
     {
+        ReportWalkSfx();
         if (_dead || player == null) return;
         if (_staggered) return;                 // deaf during a parry-stagger
         if (_aggroed) FacePlayer();             // don't track the player until engaged
@@ -258,6 +268,7 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
     IEnumerator StaggerRoutine()
     {
         _staggered = true;
+        if (_sfx != null) _sfx.StopSwing(swingSoundEndDelay);   // parried -> the swing sound is cut immediately
         _busy = false; _deflecting = false; _inRecover = false;
         SetGuard(false);
         if (_agent != null && _agent.isOnNavMesh) _agent.ResetPath();
@@ -315,16 +326,18 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
     // Phased swing: clip plays windup -> swing -> stuck. The hurtbox is LIVE only during [swingStart, swingEnd]
     // seconds — never during the windup. If the player reacts (blocks OR i-frames) on ANY frame the hurtbox is on
     // them it resolves (a LATE block still drains stamina); if they never react, the hit lands at the window's end.
-    protected IEnumerator Swing(string trig, float dmg, float reach, float nudge, float swingStart, float swingEnd, float staCost = 8f)
+    protected IEnumerator Swing(string trig, float dmg, float reach, float nudge, float swingStart, float swingEnd, float staCost = 8f, float soundTime = -1f)
     {
         if (_poiseBroken || _deflecting || _staggered) yield break;
         if (anim != null) anim.SetTrigger(trig);
         _stamina = Mathf.Max(0, _stamina - staCost);
         float swingDur = Mathf.Max(0.01f, swingEnd - swingStart);
-        float t = 0f; bool resolved = false;
+        float t = 0f; bool resolved = false, soundPlayed = false;
         while (t < swingEnd)
         {
-            if (_poiseBroken || _deflecting || _staggered || _wantDamageDodge) { _parryable = false; yield break; }
+            if (_poiseBroken || _deflecting || _staggered || _wantDamageDodge) { _parryable = false; if (_sfx != null) _sfx.StopSwing(swingSoundEndDelay); yield break; }   // interrupted -> cut the swing sound
+            if (!soundPlayed && soundTime >= 0f && t >= soundTime)   // swing whoosh at the configured frame
+            { if (_sfx != null) _sfx.PlaySwing(swingClip, swingSoundEndDelay); soundPlayed = true; }
             if (t >= swingStart)                       // SWING phase — hurtbox live the whole window + lunge
             {
                 float ps = t - swingStart;                          // time into the swing section
@@ -381,6 +394,7 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
 
         if (_blocking)   // only happens while tired -> perfect deflect of a heavy
         {
+            if (_sfx != null) { _sfx.StopSwing(swingSoundEndDelay); _sfx.PlayOver(crashClip); }   // SFX: parry clash cuts any swing whoosh, then plays
             _blockMeter += damage * deflectPoiseFraction * lowHpPoiseMult;   // 10% of dmg -> poise (×2); 90% erased (no HP)
             if (player != null) { var pst = player.GetComponent<PlayerStats>(); if (pst != null) pst.DrainStamina(deflectStaminaDamage); } // deflect -> stamina
             if (!_poiseBroken && _blockMeter >= blockMeterMax) StartCoroutine(PoiseBreak());
@@ -413,6 +427,7 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
         if (_dead) return;
         _dead = true;
         StopAllCoroutines();
+        if (_sfx != null) _sfx.StopSwing();                    // dead -> no lingering swing whoosh
         _busy = _blocking = _deflecting = _staggered = _wantDamageDodge = _parryable = false;
 
         if (player != null)
@@ -431,6 +446,15 @@ public abstract class BossBrainBase : MonoBehaviour, IDamageable, IStaggerable
             anim.Play(deathState, 0, 0f);
             anim.Update(0f);
         }
+    }
+
+    // feed the footstep loop: moving = the agent has velocity; sprinting = faster than the base walk speed
+    void ReportWalkSfx()
+    {
+        if (_walkSfx == null) return;
+        bool moving = !_dead && _agent != null && _agent.isOnNavMesh && _agent.velocity.sqrMagnitude > 0.05f;
+        bool sprinting = moving && _agent != null && _agent.speed > moveSpeed + 0.1f;
+        _walkSfx.Report(moving, sprinting);
     }
 
     // ───────── shared utilities ─────────

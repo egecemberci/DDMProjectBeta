@@ -152,6 +152,9 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     public float hitHeight    = 0f;       // capsule vertical offset off the root (raise to body height)
     public bool  drawGizmos   = true;
 
+    [Header("Audio")]
+    public AudioClip clashClip;          // swordsound — plays when the Mimic blocks our attack or lands one of its hits (no gating)
+
     [Header("Attack clip STATE NAMES (frame-accurate playback)")]
     public string attackAState = "2001_women_OnehandSW_attack_A";   // LightAttack / A swings
     public string attackBState = "2011_women_OnehandSW_attack_B";   // Finisher
@@ -163,6 +166,8 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
 
     NavMeshAgent _agent;
     PlayerStateMachine _playerSM;
+    CombatSfx _sfx;
+    WalkSfx _walkSfx;
     PlayerState _lastPlayerState;
     float _hp, _stamina, _invulnUntil, _hurtUntil, _blockMeter, _specialThreshold, _blockHeldTimer, _blockStopTimer, _lightComboUntil, _blockTimer, _noDodgeUntil, _attackEReadyAt, _baseAccel, _lastAttackTime;
     bool  _dead, _busy, _blocking, _staggered, _tired, _specialUsed, _aggressive, _wantDodge, _lowHp, _guardAggro, _introDone, _inRecover, _dodging, _mustAttack, _recoverHit, _wantAttackE, _specialActive, _parryable, _wantBlockBreak, _healUsed, _wantHeal;
@@ -176,6 +181,8 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
     void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _sfx   = GetComponent<CombatSfx>();
+        _walkSfx = GetComponent<WalkSfx>();
         if (anim == null)   anim = GetComponentInChildren<Animator>();
         if (anim != null)   anim.cullingMode = AnimatorCullingMode.AlwaysAnimate;   // boss always animates (death plays off-camera too)
         if (player == null) { var p = GameObject.FindWithTag("Player"); if (p) player = p.transform; }
@@ -192,6 +199,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
 
     void Update()
     {
+        ReportWalkSfx();
         if (_dead || player == null) return;
         if (!_dodging) FacePlayer();   // freeze facing during dodges so directional dodges read cleanly (no sideways slide)
         _stamina = Mathf.Min(maxStamina, _stamina + staminaRegen * Time.deltaTime);
@@ -703,6 +711,15 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         if (!dealt && !_wantDodge && !_staggered) MeleeHitR(dmg, poiseDmg, reach);   // safety: never silently whiff
     }
 
+    // feed the footstep loop: moving = the agent has velocity; sprinting = faster than the base walk speed (e.g. Attack C dash)
+    void ReportWalkSfx()
+    {
+        if (_walkSfx == null) return;
+        bool moving = !_dead && _agent != null && _agent.isOnNavMesh && _agent.velocity.sqrMagnitude > 0.05f;
+        bool sprinting = moving && _agent != null && _agent.speed > moveSpeed + 0.1f;
+        _walkSfx.Report(moving, sprinting);
+    }
+
     void MeleeHitR(float dmg, float poiseDmg, float reach) => MeleeHitR(dmg, poiseDmg, reach, hitRadius);
 
     // CAPSULE hurtbox — a `hitLength`-long tube of radius `radius`, centred `reach` m in front along forward.
@@ -712,7 +729,8 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         Vector3 center = transform.position + transform.forward * reach + Vector3.up * hitHeight;
         Vector3 half   = transform.forward * (hitLength * 0.5f);
         foreach (var h in Physics.OverlapCapsule(center - half, center + half, radius))
-            if (h.CompareTag("Player") && h.TryGetComponent<IDamageable>(out var t)) { t.TakeDamage(dmg, poiseDmg, transform.position); return; }
+            if (h.CompareTag("Player") && h.TryGetComponent<IDamageable>(out var t))
+            { t.TakeDamage(dmg, poiseDmg, transform.position); if (_sfx != null) _sfx.PlayOver(clashClip); return; }   // SFX: Mimic landed a hit
     }
 
     // wide BOX sweep for the desperation lunge only — specialSweepLength forward × specialSweepWidth wide,
@@ -722,7 +740,8 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
         Vector3 center = transform.position + transform.forward * (specialSweepLength * 0.5f) + Vector3.up * 1.0f;
         Vector3 half   = new Vector3(specialSweepWidth * 0.5f, 2.5f, specialSweepLength * 0.5f);
         foreach (var h in Physics.OverlapBox(center, half, transform.rotation))
-            if (h.CompareTag("Player") && h.TryGetComponent<IDamageable>(out var t)) { t.TakeDamage(dmg, poiseDmg, transform.position); return; }
+            if (h.CompareTag("Player") && h.TryGetComponent<IDamageable>(out var t))
+            { t.TakeDamage(dmg, poiseDmg, transform.position); if (_sfx != null) _sfx.PlayOver(clashClip); return; }   // SFX: Mimic lunge connected
     }
 
     // ───────── IDamageable ─────────
@@ -734,6 +753,7 @@ public class MimicBoss : MonoBehaviour, IDamageable, IStaggerable
 
         if (_blocking)   // GUARD up -> fill poise bar, NO hp (poiseDamage now counts, so strong attacks break the guard faster)
         {
+            if (_sfx != null) _sfx.PlayOver(clashClip);   // SFX: Mimic blocked our attack
             _blockMeter += damage + poiseDamage;
             if (++_guardHits >= blockBreakHits) _wantBlockBreak = true;   // blocked 2+ this guard -> break out with a dodge
             if (_blockMeter >= blockMeterMax && !_tired) StartCoroutine(TiredRoutine());

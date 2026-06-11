@@ -22,6 +22,8 @@ public class PlayerMovement : MonoBehaviour
     private Animator _anim;
     private Camera _cam;
     private Vector3 _velocity;
+    private WalkSfx _walkSfx;
+    private bool _sfxMoving, _sfxSprinting;   // fed to the footstep loop each frame
 
     void Awake()
     {
@@ -31,25 +33,30 @@ public class PlayerMovement : MonoBehaviour
         _stats = GetComponent<PlayerStats>();
         _lockOn = GetComponent<LockOnSystem>();
         _anim = GetComponentInChildren<Animator>();
+        _walkSfx = GetComponent<WalkSfx>();
         _cam = Camera.main;
     }
 
     void Update()
     {
         HandleGravity();
+        _sfxMoving = false; _sfxSprinting = false;
 
-        if (!_sm.CanAct()) return;
-
-        if (_input.JumpPressed && _cc.isGrounded)
+        if (_sm.CanAct())
         {
-            _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            if (_anim != null) _anim.SetTrigger("Jump");
+            if (_input.JumpPressed && _cc.isGrounded)
+            {
+                _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                if (_anim != null) _anim.SetTrigger("Jump");
+            }
+
+            HandleMovement();
+
+            if (_anim != null)
+                _anim.SetBool("IsGrounded", _cc.isGrounded);
         }
 
-        HandleMovement();
-
-        if (_anim != null)
-            _anim.SetBool("IsGrounded", _cc.isGrounded);
+        if (_walkSfx != null) _walkSfx.Report(_sfxMoving, _sfxSprinting);
     }
 
     void HandleMovement()
@@ -86,6 +93,9 @@ public class PlayerMovement : MonoBehaviour
                                     walkSpeed;
 
         if (isSprinting) _stats.UseStamina(8f * Time.deltaTime);
+
+        _sfxMoving    = !isBlocking;   // footsteps only when actually moving (blocking pins speed to 0)
+        _sfxSprinting = isSprinting;
 
         _cc.Move(moveDir * speed * Time.deltaTime);
 

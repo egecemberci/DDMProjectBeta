@@ -2404,26 +2404,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 3632406762020511666, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
-      propertyPath: distance
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3632406762020511666, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
-      propertyPath: maxPitch
-      value: 70
-      objectReference: {fileID: 0}
-    - target: {fileID: 3632406762020511666, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
-      propertyPath: minPitch
-      value: -40
-      objectReference: {fileID: 0}
-    - target: {fileID: 3632406762020511666, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
-      propertyPath: shoulder
-      value: 1.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3632406762020511666, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
-      propertyPath: heightOffset
-      value: -0.5
-      objectReference: {fileID: 0}
     - target: {fileID: 4646126041619980656, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
       propertyPath: m_LocalPosition.x
       value: -69.3343
@@ -2467,14 +2447,6 @@ PrefabInstance:
     - target: {fileID: 5026583232273595572, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
       propertyPath: field of view
       value: 65
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102159370801355722, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
-      propertyPath: walkSpeed
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 9102159370801355722, guid: 5e5cd528b86e9e043aabd5cf8ce25de3, type: 3}
-      propertyPath: sprintSpeed
-      value: 22
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

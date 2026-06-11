@@ -46,6 +46,9 @@ public class PlayerCombat : MonoBehaviour
     public float heavyLength = 0f;
     public float heavyHeight = 1.0f;
 
+    [Header("Audio")]
+    public AudioClip hitClip;            // swordsound — plays when one of our attacks hurts something (no gating)
+
     [Header("Debug")]
     public bool drawHitboxGizmos = true;
 
@@ -56,6 +59,7 @@ public class PlayerCombat : MonoBehaviour
     Animator           _anim;
     CharacterController _cc;
     GameObject         _weaponInstance;
+    CombatSfx          _sfx;
 
     [Header("Heavy attack nudge")]
     public float heavyNudgeDist = 0.2f;   // forward scoot when the strong attack plays
@@ -72,6 +76,7 @@ public class PlayerCombat : MonoBehaviour
         _block         = GetComponent<PlayerBlock>();
         _anim          = GetComponentInChildren<Animator>();
         _cc            = GetComponent<CharacterController>();
+        _sfx           = GetComponent<CombatSfx>();
         if (hitbox != null) hitbox.enabled = false;
     }
 
@@ -210,12 +215,17 @@ public class PlayerCombat : MonoBehaviour
         float s = transform.lossyScale.x;
         Vector3 center = transform.position + transform.forward * range * s + Vector3.up * height * s;
         Vector3 half   = transform.forward * (length * 0.5f * s);
+        bool hitSomething = false;
         foreach (var h in Physics.OverlapCapsule(center - half, center + half, radius * s))
         {
             if (!h.CompareTag("Enemy")) continue;
             if (h.TryGetComponent<IDamageable>(out var t))
+            {
                 t.TakeDamage(dmg, poise, transform.position);
+                hitSomething = true;
+            }
         }
+        if (hitSomething && _sfx != null) _sfx.PlayOver(hitClip);   // SFX: our attack connected
     }
 
     // Animator-event stubs (so clip events don't error) + death lockout

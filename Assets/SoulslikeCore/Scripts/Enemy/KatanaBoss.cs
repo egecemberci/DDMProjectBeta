@@ -24,6 +24,8 @@ public class KatanaBoss : BossBrainBase
     public int   attackASwingFrames  = 18;   // attackA swing : next 18 frames (hurtbox); rest = "stuck"
     public int   attackBWindupFrames = 50;   // attackB windup: frames 0..50
     public int   attackBSwingFrames  = 20;   // attackB swing : next 20 frames; rest = "stuck"
+    [Tooltip("Frame within attack A / B at which the swing sound (swingClip) plays. Same for both.")]
+    public int   swingSoundFrame     = 33;   // daviddumaisaudio fires at this frame of both A and B
 
     float _thinkDodgeReadyAt;
 
@@ -45,7 +47,7 @@ public class KatanaBoss : BossBrainBase
     {
         float s0 = attackAWindupFrames / attackClipFps;
         float s1 = (attackAWindupFrames + attackASwingFrames) / attackClipFps;
-        yield return Swing(attackATrigger, attackADamage, attackAReach, forwardNudge, s0, s1);
+        yield return Swing(attackATrigger, attackADamage, attackAReach, forwardNudge, s0, s1, 8f, swingSoundFrame / attackClipFps);
         EndAttack();
         if (IsPoiseBroken) yield break;
         yield return Recover(attackARecover);                        // "stuck" frames play out here (punish window)
@@ -55,7 +57,7 @@ public class KatanaBoss : BossBrainBase
     {
         float s0 = attackBWindupFrames / attackClipFps;
         float s1 = (attackBWindupFrames + attackBSwingFrames) / attackClipFps;
-        yield return Swing(attackBTrigger, attackBDamage, attackBReach, forwardNudge, s0, s1, 12f);
+        yield return Swing(attackBTrigger, attackBDamage, attackBReach, forwardNudge, s0, s1, 12f, swingSoundFrame / attackClipFps);
         EndAttack();
         if (IsPoiseBroken) yield break;
         yield return Recover(attackBRecover);

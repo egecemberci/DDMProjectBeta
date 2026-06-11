@@ -591,6 +591,8 @@ GameObject:
   - component: {fileID: 2767426457476465928}
   - component: {fileID: 1959734006124789192}
   - component: {fileID: 5168645302840025979}
+  - component: {fileID: 2804480588846057816}
+  - component: {fileID: 8096508509098604760}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -733,3 +735,55 @@ MonoBehaviour:
   staggerStill: 0.5
   walkClip: {fileID: 7400000, guid: c87e70ef1e3c8b64ba4b643fb9ca2844, type: 2}
   attackClip: {fileID: 7400000, guid: 1205f8385d8513d45a50783e1d355f6c, type: 2}
+--- !u!114 &2804480588846057816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9029368057505962585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9526f44065ecd394583cb3e2dd328934, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinionAudio
+  attackClip: {fileID: 8300000, guid: 856bcacf220334246bd4c13cc34500c3, type: 3}
+  hurtClip: {fileID: 8300000, guid: d9d0a7899f1e8f44dbcc8216f2a074a1, type: 3}
+  laughClip: {fileID: 8300000, guid: 3ebcc52dd24e25546bd3237d12ba69db, type: 3}
+  deathClip: {fileID: 8300000, guid: d9d0a7899f1e8f44dbcc8216f2a074a1, type: 3}
+  attackCooldownAfter: 1.5
+  attackVolume: 0.3
+  hurtCooldown: 0.1
+  hurtVolume: 0.7
+  laughDelayMin: 0.07
+  laughDelayMax: 3
+  laughDelayPivot: 1
+  laughShortBias: 0.1
+  laughVolume: 0.4
+  spatialBlend: 1
+  minDistance: 0
+  maxDistance: 100
+--- !u!114 &8096508509098604760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9029368057505962585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba226e3ea0b74a049a732f9b088b07cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WalkSfx
+  walkClip: {fileID: 8300000, guid: 4980c4eb4e5f81a4a8dddaa3cbf6451d, type: 3}
+  walkClipLevels: Canyonlevel,Desertlevel
+  altWalkClip: {fileID: 0}
+  altWalkClipLevels: 
+  runClip: {fileID: 0}
+  volume: 0.3
+  spatialBlend: 1
+  minDistance: 5
+  maxDistance: 40
+  startThreshold: 0.5
+  releaseDelay: 0.15
+  resumeWindow: 3
