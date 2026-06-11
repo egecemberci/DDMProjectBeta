@@ -62,4 +62,15 @@ public class KatanaBoss : BossBrainBase
         if (IsPoiseBroken) yield break;
         yield return Recover(attackBRecover);
     }
+
+    protected override void Die()
+{
+    GameObject blocker = GameObject.Find("OutsideBlocker");
+    if (blocker != null)
+    {
+        blocker.SetActive(false);
+    }
+
+    base.Die(); // keeps original death behavior (animation, destroy, etc.)
+}
 }
