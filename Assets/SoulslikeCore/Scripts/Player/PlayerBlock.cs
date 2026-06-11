@@ -24,6 +24,10 @@ public class PlayerBlock : MonoBehaviour
     public float knockbackTime = 0.12f;
     public LayerMask wallMask  = ~0;          // surfaces the knockback won't shove you into
 
+    [Header("Audio")]
+    public AudioClip parryClip;          // swordcrash — plays over a successful parry
+    public AudioClip blockClip;          // swordsound — plays when a hit is (normally) blocked (no gating)
+
     [Header("Stance break (stamina runs out)")]
     public float stanceBreakKnockback = 1.25f;
     public float stanceBreakTime      = 2.0f;    // locked (no block / no dodge) for this long after a stance break
@@ -43,6 +47,7 @@ public class PlayerBlock : MonoBehaviour
     bool                _lockedUntilRelease;   // after a break, must release + repress to block again
     bool                _prevBlockHeld;        // edge-detect to re-arm the parry window on each fresh tap
     LockOnSystem        _lockOn;               // prefer staggering the locked-on target in a pack
+    CombatSfx           _sfx;
 
     void Awake()
     {
@@ -52,6 +57,7 @@ public class PlayerBlock : MonoBehaviour
         _cc    = GetComponent<CharacterController>();
         _anim  = GetComponentInChildren<Animator>();
         _lockOn = GetComponent<LockOnSystem>();
+        _sfx    = GetComponent<CombatSfx>();
     }
 
     void Update()
@@ -97,8 +103,12 @@ public class PlayerBlock : MonoBehaviour
     {
         // PARRY — only if our parry window is open AND the attacker is in ITS parryable window (e.g. the early swing frames)
         if (_parryTimer > 0f && TryParry(attackerPos))   // free block (no HP, no stamina) + stagger the attacker
+        {
+            if (_sfx != null) _sfx.PlayOver(parryClip);  // SFX: parry clash
             return;
+        }
 
+        if (_sfx != null) _sfx.PlayOver(blockClip);   // SFX: normal block clash — fires on every blocked hit
         _stats.DrainStamina(damage * blockStaminaPerHit);
         Vector3 away = transform.position - attackerPos; away.y = 0f;
         if (away.sqrMagnitude < 0.0001f) away = -transform.forward;

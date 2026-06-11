@@ -284,6 +284,8 @@ GameObject:
   - component: {fileID: 1459078736221697085}
   - component: {fileID: 6050638328179691021}
   - component: {fileID: 2186079962960948175}
+  - component: {fileID: 3471825006636336091}
+  - component: {fileID: 1464241378117182882}
   m_Layer: 0
   m_Name: Mimic
   m_TagString: Enemy
@@ -467,6 +469,7 @@ MonoBehaviour:
   hitLength: 4
   hitHeight: 4
   drawGizmos: 1
+  clashClip: {fileID: 8300000, guid: 52e2fd8e56a231b4fbdb4757c3a772d9, type: 3}
   attackAState: 2001_women_OnehandSW_attack_A
   attackBState: 2011_women_OnehandSW_attack_B
   aWindup: 21
@@ -481,6 +484,46 @@ MonoBehaviour:
   spBWindup: 24
   spBParryStart: 24
   spBParryEnd: 35
+--- !u!114 &3471825006636336091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8017578633273837500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36fbedf057bf08a459d9aa3231194314, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatSfx
+  spatialBlend: 1
+  minDistance: 5
+  maxDistance: 60
+  volume: 1
+--- !u!114 &1464241378117182882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8017578633273837500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba226e3ea0b74a049a732f9b088b07cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WalkSfx
+  walkClip: {fileID: 8300000, guid: 45a96b7debca1fd44b224163d104172c, type: 3}
+  walkClipLevels: Librarylevel
+  altWalkClip: {fileID: 0}
+  altWalkClipLevels: 
+  runClip: {fileID: 8300000, guid: dc927699c197f2842847788075a4cbaa, type: 3}
+  volume: 0.6
+  spatialBlend: 1
+  minDistance: 5
+  maxDistance: 40
+  startThreshold: 0.5
+  releaseDelay: 0.15
+  resumeWindow: 3
 --- !u!1 &9025861163076255092
 GameObject:
   m_ObjectHideFlags: 0

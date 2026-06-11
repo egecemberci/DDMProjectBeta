@@ -2206,6 +2206,8 @@ GameObject:
   - component: {fileID: 6792248701352134643}
   - component: {fileID: 6717432959345631145}
   - component: {fileID: 7572330939212766288}
+  - component: {fileID: 5065773069708308230}
+  - component: {fileID: 6973864006381020109}
   m_Layer: 0
   m_Name: BossKatana
   m_TagString: Enemy
@@ -2347,6 +2349,9 @@ MonoBehaviour:
   hitRadius: 1
   hitCooldown: 0.2
   drawGizmos: 1
+  swingClip: {fileID: 8300000, guid: b220e841bc1fb994eb9feb93806b4b29, type: 3}
+  crashClip: {fileID: 8300000, guid: 9f2ab34dbb8877c4992ae47ba1cbeb4b, type: 3}
+  swingSoundEndDelay: 0.5
   attackATrigger: AttackA
   attackBTrigger: AttackB
   attackAChance: 0.6
@@ -2362,6 +2367,47 @@ MonoBehaviour:
   attackASwingFrames: 18
   attackBWindupFrames: 50
   attackBSwingFrames: 20
+  swingSoundFrame: 33
+--- !u!114 &5065773069708308230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8514835569649202259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36fbedf057bf08a459d9aa3231194314, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatSfx
+  spatialBlend: 1
+  minDistance: 5
+  maxDistance: 60
+  volume: 1
+--- !u!114 &6973864006381020109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8514835569649202259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba226e3ea0b74a049a732f9b088b07cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WalkSfx
+  walkClip: {fileID: 8300000, guid: 4980c4eb4e5f81a4a8dddaa3cbf6451d, type: 3}
+  walkClipLevels: Canyonlevel,Desertlevel
+  altWalkClip: {fileID: 0}
+  altWalkClipLevels: 
+  runClip: {fileID: 8300000, guid: dc927699c197f2842847788075a4cbaa, type: 3}
+  volume: 0.75
+  spatialBlend: 1
+  minDistance: 5
+  maxDistance: 40
+  startThreshold: 0.5
+  releaseDelay: 0.15
+  resumeWindow: 3
 --- !u!1 &8597024232001928240
 GameObject:
   m_ObjectHideFlags: 0

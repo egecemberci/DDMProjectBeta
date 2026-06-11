@@ -20,6 +20,8 @@ GameObject:
   - component: {fileID: 286063434514773588}
   - component: {fileID: 3939458121111035374}
   - component: {fileID: 4398176723532525070}
+  - component: {fileID: 8646331693715607652}
+  - component: {fileID: 6767437187787253849}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -201,6 +203,7 @@ MonoBehaviour:
   heavyRadius: 0.25
   heavyLength: 1.75
   heavyHeight: 1.3
+  hitClip: {fileID: 8300000, guid: 52e2fd8e56a231b4fbdb4757c3a772d9, type: 3}
   drawHitboxGizmos: 1
   heavyNudgeDist: 2.2
   heavyNudgeTime: 0.3
@@ -248,6 +251,8 @@ MonoBehaviour:
   wallMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  parryClip: {fileID: 8300000, guid: 9f2ab34dbb8877c4992ae47ba1cbeb4b, type: 3}
+  blockClip: {fileID: 8300000, guid: 52e2fd8e56a231b4fbdb4757c3a772d9, type: 3}
   stanceBreakKnockback: 1.75
   stanceBreakTime: 1.75
   stanceBreakHurtSpeed: 0.75
@@ -290,6 +295,47 @@ MonoBehaviour:
   drinkState: Drink
   drinkFallbackTime: 1.65
   potionModel: {fileID: 3236801597235117342}
+--- !u!114 &8646331693715607652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 201349555429335935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36fbedf057bf08a459d9aa3231194314, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatSfx
+  spatialBlend: 1
+  minDistance: 5
+  maxDistance: 60
+  volume: 1
+--- !u!114 &6767437187787253849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 201349555429335935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba226e3ea0b74a049a732f9b088b07cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WalkSfx
+  walkClip: {fileID: 8300000, guid: 4980c4eb4e5f81a4a8dddaa3cbf6451d, type: 3}
+  walkClipLevels: Canyonlevel,Desertlevel
+  altWalkClip: {fileID: 8300000, guid: 45a96b7debca1fd44b224163d104172c, type: 3}
+  altWalkClipLevels: Librarylevel
+  runClip: {fileID: 8300000, guid: dc927699c197f2842847788075a4cbaa, type: 3}
+  volume: 1
+  runVolume: 0.65
+  spatialBlend: 0
+  minDistance: 5
+  maxDistance: 40
+  startThreshold: 0.5
+  releaseDelay: 0.15
+  resumeWindow: 3
 --- !u!1 &7943962747137493679
 GameObject:
   m_ObjectHideFlags: 0
